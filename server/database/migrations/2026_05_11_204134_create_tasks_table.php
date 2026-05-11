@@ -20,9 +20,11 @@ return new class extends Migration {
             $table->string('title');
             $table->text('description')->nullable();
 
-            $table->string('status')->default('pending');
+            $table->string('status')
+                    ->default(\App\Enums\TaskStatus::PENDING->value);
 
-            $table->string('priority')->default('medium');
+            $table->string('priority')
+                    ->default(\App\Enums\TaskPriority::MEDIUM->value);
 
             $table->timestamp('due_date')->nullable();
 
