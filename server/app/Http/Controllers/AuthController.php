@@ -10,6 +10,13 @@ use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
+
+    /**
+     * Autenticar usuário e gerar token de acesso
+     *
+     * Este endpoint realiza a autenticação do usuário utilizando e-mail e senha.
+     * Caso as credenciais sejam válidas, um novo token de acesso é gerado e quaisquer tokens anteriores são revogados para garantir segurança da sessão.
+     */
     public function login(LoginRequest $request)
     {
         $credentials = $request->validated();
@@ -31,7 +38,15 @@ class AuthController extends Controller
         );
     }
 
-
+    /**
+     * Encerrar sessão do usuário autenticado
+     *
+     * Este endpoint realiza o logout do usuário autenticado,
+     * removendo o token de acesso atualmente em uso.
+     *
+     * Caso o usuário não esteja autenticado, uma mensagem de erro
+     * será retornada informando que não há sessão ativa.
+     */
     public function logout(Request $request)
     {
         if (!Auth::user()) {
@@ -47,6 +62,14 @@ class AuthController extends Controller
         );
     }
 
+    /**
+     * Registrar novo usuário no sistema
+     *
+     * Este endpoint cria um novo usuário com base nos dados informados.
+     * A senha é armazenada de forma segura após criptografia.
+     *
+     * Após o cadastro, o usuário poderá autenticar-se utilizando suas credenciais.
+     */
     public function register(RegisterRequest $request)
     {
         $validatedData = $request->validated();
