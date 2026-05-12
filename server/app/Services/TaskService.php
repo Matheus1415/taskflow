@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\TaskStatus;
 use App\Models\Task;
 use Illuminate\Support\Facades\Auth;
 
@@ -75,5 +76,34 @@ class TaskService
             ...$data,
             'user_id' => Auth::id(),
         ]);
+    }
+
+    public function update(int $id, array $data): ?Task
+    {
+        $task = Task::query()
+            ->where('user_id', Auth::id())
+            ->find($id);
+
+        if (!$task) {
+            return null;
+        }
+
+        if (
+            isset($data['status']) &&
+            $data['status'] === TaskStatus::DONE->value
+        ) {
+            $data['completed_at'] = now();
+        }
+
+        if (
+            isset($data['status']) &&
+            $data['status'] !== TaskStatus::DONE->value
+        ) {
+            $data['completed_at'] = null;
+        }
+
+        $task->update($data);
+
+        return $task->fresh();
     }
 }

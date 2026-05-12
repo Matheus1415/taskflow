@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Task\IndexTaskRequest;
 use App\Http\Requests\Task\StoreTaskRequest;
-use App\Http\Resources\TaskResource;
+use App\Http\Requests\Task\UpdateTaskRequest;
 use App\Services\TaskService;
 
 class TaskController extends Controller
@@ -60,7 +60,8 @@ class TaskController extends Controller
         $task = $this->service->first($id);
 
         return $this->success(
-            'Tarefa encontrada com sucesso', $task
+            'Tarefa encontrada com sucesso',
+            $task
         );
     }
 
@@ -86,6 +87,22 @@ class TaskController extends Controller
 
         return $this->success(
             'Tarefa criada com sucesso',
+            $task
+        );
+    }
+
+    public function update(UpdateTaskRequest $request,int $id) {
+        $task = $this->service->update($id,$request->validated() );
+
+        if (!$task) {
+            return $this->error(
+                'Tarefa não encontrada',
+                404
+            );
+        }
+
+        return $this->success(
+            'Tarefa atualizada com sucesso',
             $task
         );
     }
