@@ -3,16 +3,28 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Task\IndexTaskRequest;
 use App\Http\Requests\Task\StoreTaskRequest;
+use App\Http\Resources\TaskResource;
 use App\Services\TaskService;
-//Docs
-use App\Docs\Task\StoreTaskDoc;
 
 class TaskController extends Controller
 {
     public function __construct(
         private TaskService $service
     ) {
+    }
+
+    public function index(IndexTaskRequest $request)
+    {
+        $tasks = $this->service->index(
+            $request->validated()
+        );
+
+        return $this->success(
+            'Lista de tarefas',
+            $tasks
+        );
     }
 
     /**
