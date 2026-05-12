@@ -124,6 +124,22 @@ class TaskController extends Controller
         );
     }
 
+    /**
+     * Excluir tarefa (Soft Delete + Exclusão definitiva)
+     *
+     * Este endpoint realiza a exclusão de uma tarefa seguindo um fluxo de lixeira (soft delete).
+     *
+     * ## Comportamento:
+     *
+     * - Na primeira chamada:
+     *   - A tarefa NÃO é removida do banco
+     *   - O campo `deleted_at` é preenchido
+     *   - A tarefa passa a ser considerada "na lixeira"
+     *
+     * - Na segunda chamada (quando a tarefa já está na lixeira):
+     *   - A tarefa é removida permanentemente do banco de dados
+     * @see DeleteTaskDoc
+     */
     public function destroy(int $id)
     {
         $deleted = $this->service->destroy($id);
