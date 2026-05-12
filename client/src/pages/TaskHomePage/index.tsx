@@ -3,7 +3,7 @@ import TaskToolbar from "./components/TaskToolbar";
 
 export default function TaskHomePage() {
     return (
-        <div className="flex flex-col gap-8 px-6">
+        <div className="flex flex-col gap-8 px-6 h-full">
             <section className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
                 <div className="space-y-2">
                     <h1 className="text-3xl font-bold tracking-tight">
