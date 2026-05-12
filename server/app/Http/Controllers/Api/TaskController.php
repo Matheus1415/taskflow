@@ -123,4 +123,20 @@ class TaskController extends Controller
             $task
         );
     }
+
+    public function destroy(int $id)
+    {
+        $deleted = $this->service->destroy($id);
+
+        if (!$deleted) {
+            return $this->error(
+                'Tarefa não encontrada',
+                404
+            );
+        }
+
+        return $this->success(
+            'Tarefa removida com sucesso'
+        );
+    }
 }
