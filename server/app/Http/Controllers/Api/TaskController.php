@@ -91,8 +91,25 @@ class TaskController extends Controller
         );
     }
 
-    public function update(UpdateTaskRequest $request,int $id) {
-        $task = $this->service->update($id,$request->validated() );
+    /**
+     * Atualizar tarefa
+     *
+     * Este endpoint permite atualizar parcialmente ou totalmente
+     * uma tarefa vinculada ao usuário autenticado.
+     *
+     * Regras:
+     * - A tarefa deve existir
+     * - A tarefa deve pertencer ao usuário autenticado
+     * - Apenas os campos enviados serão atualizados
+     * - Caso o status seja alterado para "done",
+     *   o campo completed_at será preenchido automaticamente
+     * - Caso o status deixe de ser "done",
+     *   o campo completed_at será removido
+     * @see UpdateTaskDoc
+     */
+    public function update(UpdateTaskRequest $request, int $id)
+    {
+        $task = $this->service->update($id, $request->validated());
 
         if (!$task) {
             return $this->error(
