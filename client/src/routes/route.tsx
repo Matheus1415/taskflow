@@ -1,4 +1,5 @@
 import LayoutDefault from "@/layout";
+import TaskHomePage from "@/pages/TaskHomePage";
 import { BrowserRouter, Routes, Route } from "react-router";
 
 export function Router() {
@@ -6,7 +7,7 @@ export function Router() {
         <BrowserRouter>
             <Routes>
                 <Route path="/" element={<LayoutDefault />}>
-                    <Route index element={<h1>Home</h1>} />
+                    <Route index element={<TaskHomePage />} />
                 </Route>
             </Routes>
         </BrowserRouter>
