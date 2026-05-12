@@ -34,6 +34,11 @@ class IndexTaskRequest extends FormRequest
             ],
 
             'due_date' => ['nullable', 'date'],
+
+            'trashed' => [
+                'nullable',
+                Rule::in(['active', 'only', 'with']),
+            ],
         ];
     }
 
@@ -49,6 +54,8 @@ class IndexTaskRequest extends FormRequest
             'priority.in' => 'A prioridade informada é inválida.',
 
             'due_date.date' => 'A data de vencimento deve ser válida.',
+
+            'trashed.in' => 'O filtro de lixeira deve ser: active, only ou with.',
         ];
     }
 }

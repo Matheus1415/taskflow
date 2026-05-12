@@ -14,6 +14,24 @@ class TaskService
         $query = Task::query()
             ->where('user_id', Auth::id());
 
+        /*
+        |----------------------------------
+        | SOFT DELETE FILTER
+        |----------------------------------
+        | active - só não deletados (padrão)
+        | only   - só deletados (lixeira)
+        | with   - todos
+        */
+        $trashed = $filters['trashed'] ?? 'with';
+
+        if ($trashed === 'only') {
+            $query->onlyTrashed();
+        }
+
+        if ($trashed === 'with') {
+            $query->withTrashed();
+        }
+
         $query->when(
             $filters['search'] ?? null,
             fn($q, $search) =>
