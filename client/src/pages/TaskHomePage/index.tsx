@@ -1,3 +1,5 @@
+import TaskToolbar from "./components/TaskToolbar";
+
 export default function TaskHomePage() {
     return (
         <div className="flex flex-col gap-8 px-6">
@@ -13,6 +15,8 @@ export default function TaskHomePage() {
                     </p>
                 </div>
             </section>
+
+            <TaskToolbar/>
         </div>
     );
 }
