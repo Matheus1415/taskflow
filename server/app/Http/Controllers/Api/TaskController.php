@@ -15,6 +15,21 @@ class TaskController extends Controller
     ) {
     }
 
+    /**
+     * Listar tarefas do usuário autenticado
+     *
+     * Este endpoint retorna uma listagem paginada das tarefas
+     * vinculadas ao usuário autenticado.
+     *
+     * A listagem suporta:
+     * - Paginação
+     * - Busca textual
+     * - Filtro por status
+     * - Filtro por prioridade
+     * - Filtro por data de vencimento
+     *
+     * @see IndexTaskDoc
+     */
     public function index(IndexTaskRequest $request)
     {
         $tasks = $this->service->index(
