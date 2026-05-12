@@ -42,6 +42,19 @@ class TaskController extends Controller
         );
     }
 
+    /**
+     * Buscar tarefa específica
+     *
+     * Este endpoint retorna os detalhes de uma tarefa específica
+     * vinculada ao usuário autenticado.
+     *
+     * Regras:
+     * - A tarefa deve existir
+     * - A tarefa deve pertencer ao usuário autenticado
+     * - Caso a tarefa não exista ou não pertença ao usuário,
+     *   uma resposta de erro será retornada
+     * @see ShowTaskDoc
+     */
     public function show(int $id)
     {
         $task = $this->service->first($id);
