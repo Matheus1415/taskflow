@@ -1,3 +1,4 @@
+import { TaskTable } from "./components/TaskTable";
 import TaskToolbar from "./components/TaskToolbar";
 
 export default function TaskHomePage() {
@@ -16,7 +17,8 @@ export default function TaskHomePage() {
                 </div>
             </section>
 
-            <TaskToolbar/>
+            <TaskToolbar />
+            <TaskTable />
         </div>
     );
 }
