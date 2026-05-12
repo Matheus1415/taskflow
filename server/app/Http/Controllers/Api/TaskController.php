@@ -42,6 +42,15 @@ class TaskController extends Controller
         );
     }
 
+    public function show(int $id)
+    {
+        $task = $this->service->first($id);
+
+        return $this->success(
+            'Tarefa encontrada com sucesso', $task
+        );
+    }
+
     /**
      * Criar nova tarefa
      *

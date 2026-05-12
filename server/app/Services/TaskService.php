@@ -40,7 +40,7 @@ class TaskService
             fn($q, $dueDate) =>
             $q->whereDate('due_date', $dueDate)
         );
-        
+
         $tasks = $query
             ->latest()
             ->paginate($filters['per_page'] ?? 10);
@@ -60,6 +60,13 @@ class TaskService
                 'has_more_pages' => $tasks->hasMorePages(),
             ],
         ];
+    }
+
+    public function first(int $id): Task
+    {
+        return Task::query()
+            ->where('user_id', Auth::id())
+            ->findOrFail($id);
     }
 
     public function create(array $data): Task
