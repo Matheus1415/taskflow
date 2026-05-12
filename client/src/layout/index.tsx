@@ -2,12 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { Moon, SunMedium, CheckCircle2 } from "lucide-react";
+import { Outlet } from "react-router";
 
-export default function LayoutDefault({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function LayoutDefault(){
   const [theme, setTheme] = useState<"light" | "dark">("light");
 
   useEffect(() => {
@@ -51,7 +48,7 @@ export default function LayoutDefault({
       </div>
 
       <header className="sticky top-0 z-50 border-b border-border/60 bg-background/80 backdrop-blur-xl">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
+        <div className="mx-auto flex h-16 items-center justify-between px-6">
           <div className="flex items-center gap-4">
             <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-lg shadow-primary/10">
               <CheckCircle2 className="h-5 w-5" />
@@ -83,8 +80,8 @@ export default function LayoutDefault({
         </div>
       </header>
 
-      <main className="mx-auto flex w-full max-w-7xl flex-1 flex-col px-6 py-8">
-        {children}
+      <main className="mx-auto flex w-full flex-1 flex-col py-8">
+        <Outlet />
       </main>
     </div>
   );
