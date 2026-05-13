@@ -40,24 +40,13 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import type { Task } from "@/types/task";
 
-type Task = {
-    id: string;
-    title: string;
-    status: "Pendente" | "Em Progresso" | "Concluída";
-    priority: "Baixa" | "Média" | "Alta";
-    dueDate: Date;
-    completed: boolean;
-};
+interface TaskTableProps {
+    tasks: Task[];
+}
 
-const tasks: Task[] = [
-    { id: "1", title: "Configurar ambiente de produção", status: "Em Progresso", priority: "Alta", dueDate: new Date("2026-05-15"), completed: false },
-    { id: "2", title: "Revisão de código - Módulo Financeiro", status: "Pendente", priority: "Média", dueDate: new Date("2026-05-18"), completed: false },
-    { id: "3", title: "Atualizar documentação da API", status: "Concluída", priority: "Baixa", dueDate: new Date("2026-05-12"), completed: true },
-    { id: "4", title: "Implementar Webhooks do WhatsApp", status: "Em Progresso", priority: "Alta", dueDate: new Date("2026-05-25"), completed: false },
-];
-
-export function TaskTable() {
+export function TaskTable({ tasks }: TaskTableProps ) {
     const [selectedTasks, setSelectedTasks] = useState<string[]>([]);
     const today = new Date("2026-05-12");
 
@@ -79,7 +68,7 @@ export function TaskTable() {
 
     return (
         <div className="w-full bg-card rounded-xl border-none shadow-sm">
-            <ScrollArea className="h-[500px] w-full rounded-xl border-none">
+            <ScrollArea className="h-[400px] w-full rounded-xl border-none">
                 <Table className="border-collapse">
                     <TableHeader className="bg-muted/60 sticky top-0 z-10 backdrop-blur-md">
                         <TableRow className="hover:bg-transparent border-b border-border/50">
