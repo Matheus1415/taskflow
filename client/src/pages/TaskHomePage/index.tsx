@@ -15,12 +15,12 @@ export default function TaskHomePage() {
     const tasks: Task[] = [
         { id: "1", title: "Configurar ambiente de produção", status: "Em Progresso", priority: "Alta", dueDate: new Date("2026-05-15"), completed: false },
         { id: "2", title: "Revisão de código - Módulo Financeiro", status: "Pendente", priority: "Média", dueDate: new Date("2026-05-18"), completed: false },
-        { id: "3", title: "Atualizar documentação da API", status: "Concluída", priority: "Baixa", dueDate: new Date("2026-05-12"), completed: true },
+        { id: "3", title: "Atualizar documentação da API", status: "Pendente", priority: "Baixa", dueDate: new Date("2026-05-12"), completed: false },
         { id: "4", title: "Implementar Webhooks do WhatsApp", status: "Em Progresso", priority: "Alta", dueDate: new Date("2026-05-25"), completed: false },
-        { id: "4", title: "Implementar Webhooks do WhatsApp", status: "Em Progresso", priority: "Alta", dueDate: new Date("2026-05-25"), completed: false },
-        { id: "4", title: "Implementar Webhooks do WhatsApp", status: "Em Progresso", priority: "Alta", dueDate: new Date("2026-05-25"), completed: false },
-        { id: "4", title: "Implementar Webhooks do WhatsApp", status: "Em Progresso", priority: "Alta", dueDate: new Date("2026-05-25"), completed: false },
-        { id: "4", title: "Implementar Webhooks do WhatsApp", status: "Em Progresso", priority: "Alta", dueDate: new Date("2026-05-25"), completed: false },
+        { id: "5", title: "Implementar Webhooks do WhatsApp", status: "Em Progresso", priority: "Alta", dueDate: new Date("2026-05-25"), completed: false },
+        { id: "6", title: "Implementar Webhooks do WhatsApp", status: "Em Progresso", priority: "Alta", dueDate: new Date("2026-05-25"), completed: false },
+        { id: "7", title: "Implementar Webhooks do WhatsApp", status: "Em Progresso", priority: "Alta", dueDate: new Date("2026-05-25"), completed: false },
+        { id: "8", title: "Implementar Webhooks do WhatsApp", status: "Em Progresso", priority: "Alta", dueDate: new Date("2026-05-25"), completed: false },
     ];
 
     const taskInProgress = tasks.filter(task => task.status === "Em Progresso");

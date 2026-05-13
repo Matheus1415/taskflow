@@ -46,7 +46,7 @@ interface TaskTableProps {
     tasks: Task[];
 }
 
-export function TaskTable({ tasks }: TaskTableProps ) {
+export function TaskTable({ tasks }: TaskTableProps) {
     const [selectedTasks, setSelectedTasks] = useState<string[]>([]);
     const today = new Date("2026-05-12");
 
@@ -125,144 +125,166 @@ export function TaskTable({ tasks }: TaskTableProps ) {
                     </TableHeader>
 
                     <TableBody>
-                        {tasks.map((task) => {
-                            const daysLeft = getDaysRemaining(task.dueDate);
+                        {tasks.length === 0 ? (
+                            <TableRow className="hover:bg-transparent">
+                                {/* O colSpan deve ser igual ao número total de colunas na sua tabela (neste caso, 7) */}
+                                <TableCell colSpan={7} className="h-[320px] text-center">
+                                    <div className="flex flex-col items-center justify-center gap-3 animate-in fade-in zoom-in duration-300">
+                                        <div className="flex h-20 w-20 items-center justify-center rounded-full bg-muted/30">
+                                            <LayoutList className="h-10 w-10 text-muted-foreground/40" />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <p className="text-lg font-medium text-foreground">
+                                                Ainda não há tarefas por aqui
+                                            </p>
+                                            <p className="text-sm text-muted-foreground">
+                                                Você não possui itens nesta categoria no momento.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </TableCell>
+                            </TableRow>
+                        ) : (
 
-                            return (
-                                <TableRow
-                                    key={task.id}
-                                    className={cn(
-                                        "group border-b border-border/40 transition-all hover:bg-muted/30",
-                                        selectedTasks.includes(task.id) && "bg-primary/5 hover:bg-primary/10"
-                                    )}
-                                >
-                                    <TableCell className="pl-6">
-                                        <TooltipProvider>
-                                            <Tooltip delayDuration={500}>
-                                                <TooltipTrigger asChild>
-                                                    <Checkbox
-                                                        checked={selectedTasks.includes(task.id)}
-                                                        onCheckedChange={() => toggleSelectTask(task.id)}
-                                                        aria-label={`Selecionar tarefa: ${task.title}`}
-                                                        className="cursor-pointer"
-                                                    />
-                                                </TooltipTrigger>
-                                                <TooltipContent side="right" className="text-[10px] font-semibold bg-primary text-primary-foreground border-none">
-                                                    Selecionar
-                                                </TooltipContent>
-                                            </Tooltip>
-                                        </TooltipProvider>
-                                    </TableCell>
+                            tasks.map((task) => {
+                                const daysLeft = getDaysRemaining(task.dueDate);
 
-                                    <TableCell className="py-4">
-                                        <div className="flex items-center gap-3">
-                                            <button className="focus:outline-none transition-all active:scale-90">
-                                                {(() => {
-                                                    switch (task.status) {
-                                                        case "Concluída":
-                                                            return (
-                                                                <CheckCircle2 className="h-5 w-5 text-green-500 fill-green-500/10 transition-colors" />
-                                                            );
-                                                        case "Em Progresso":
-                                                            return (
-                                                                <CircleDashed className="h-5 w-5 text-blue-500 animate-[spin_3s_linear_infinite] transition-colors" />
-                                                            );
-                                                        case "Pendente":
-                                                        default:
-                                                            return (
-                                                                <Circle className="h-5 w-5 text-muted-foreground/40 hover:text-primary transition-colors" />
-                                                            );
-                                                    }
-                                                })()}
-                                            </button>
-                                            <div className="flex flex-col">
-                                                <span className={cn(
-                                                    "font-medium text-sm lg:text-base transition-all",
-                                                    task.completed && "line-through text-muted-foreground opacity-60"
-                                                )}>
-                                                    {task.title}
-                                                </span>
+                                return (
+                                    <TableRow
+                                        key={task.id}
+                                        className={cn(
+                                            "group border-b border-border/40 transition-all hover:bg-muted/30",
+                                            selectedTasks.includes(task.id) && "bg-primary/5 hover:bg-primary/10"
+                                        )}
+                                    >
+                                        <TableCell className="pl-6">
+                                            <TooltipProvider>
+                                                <Tooltip delayDuration={500}>
+                                                    <TooltipTrigger asChild>
+                                                        <Checkbox
+                                                            checked={selectedTasks.includes(task.id)}
+                                                            onCheckedChange={() => toggleSelectTask(task.id)}
+                                                            aria-label={`Selecionar tarefa: ${task.title}`}
+                                                            className="cursor-pointer"
+                                                        />
+                                                    </TooltipTrigger>
+                                                    <TooltipContent side="right" className="text-[10px] font-semibold bg-primary text-primary-foreground border-none">
+                                                        Selecionar
+                                                    </TooltipContent>
+                                                </Tooltip>
+                                            </TooltipProvider>
+                                        </TableCell>
+
+                                        <TableCell className="py-4">
+                                            <div className="flex items-center gap-3">
+                                                <button className="focus:outline-none transition-all active:scale-90">
+                                                    {(() => {
+                                                        switch (task.status) {
+                                                            case "Concluída":
+                                                                return (
+                                                                    <CheckCircle2 className="h-5 w-5 text-green-500 fill-green-500/10 transition-colors" />
+                                                                );
+                                                            case "Em Progresso":
+                                                                return (
+                                                                    <CircleDashed className="h-5 w-5 text-blue-500 animate-[spin_3s_linear_infinite] transition-colors" />
+                                                                );
+                                                            case "Pendente":
+                                                            default:
+                                                                return (
+                                                                    <Circle className="h-5 w-5 text-muted-foreground/40 hover:text-primary transition-colors" />
+                                                                );
+                                                        }
+                                                    })()}
+                                                </button>
+                                                <div className="flex flex-col">
+                                                    <span className={cn(
+                                                        "font-medium text-sm lg:text-base transition-all",
+                                                        task.completed && "line-through text-muted-foreground opacity-60"
+                                                    )}>
+                                                        {task.title}
+                                                    </span>
+                                                </div>
                                             </div>
-                                        </div>
-                                    </TableCell>
+                                        </TableCell>
 
-                                    <TableCell className="hidden md:table-cell text-center">
-                                        <Badge variant="outline" className={cn(
-                                            "rounded-lg px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider border-none",
-                                            task.status === "Em Progresso" && "bg-blue-500/10 text-blue-500",
-                                            task.status === "Pendente" && "bg-amber-500/10 text-amber-500",
-                                            task.status === "Concluída" && "bg-green-500/10 text-green-500"
-                                        )}>
-                                            {task.status}
-                                        </Badge>
-                                    </TableCell>
+                                        <TableCell className="hidden md:table-cell text-center">
+                                            <Badge variant="outline" className={cn(
+                                                "rounded-lg px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider border-none",
+                                                task.status === "Em Progresso" && "bg-blue-500/10 text-blue-500",
+                                                task.status === "Pendente" && "bg-amber-500/10 text-amber-500",
+                                                task.status === "Concluída" && "bg-green-500/10 text-green-500"
+                                            )}>
+                                                {task.status}
+                                            </Badge>
+                                        </TableCell>
 
-                                    <TableCell className="hidden sm:table-cell">
-                                        <div className="flex items-center gap-2 bg-muted/40 w-fit px-3 py-1 rounded-full border border-border/50">
-                                            <Flag className={cn(
-                                                "h-3.5 w-3.5",
-                                                task.priority === "Alta" && "text-red-500 fill-red-500",
-                                                task.priority === "Média" && "text-amber-500 fill-amber-500",
-                                                task.priority === "Baixa" && "text-green-500 fill-green-500"
-                                            )} />
-                                            <span className="text-xs font-medium">{task.priority}</span>
-                                        </div>
-                                    </TableCell>
+                                        <TableCell className="hidden sm:table-cell">
+                                            <div className="flex items-center gap-2 bg-muted/40 w-fit px-3 py-1 rounded-full border border-border/50">
+                                                <Flag className={cn(
+                                                    "h-3.5 w-3.5",
+                                                    task.priority === "Alta" && "text-red-500 fill-red-500",
+                                                    task.priority === "Média" && "text-amber-500 fill-amber-500",
+                                                    task.priority === "Baixa" && "text-green-500 fill-green-500"
+                                                )} />
+                                                <span className="text-xs font-medium">{task.priority}</span>
+                                            </div>
+                                        </TableCell>
 
-                                    <TableCell className="hidden lg:table-cell">
-                                        <span className="text-sm text-muted-foreground">
-                                            {task.dueDate.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })}
-                                        </span>
-                                    </TableCell>
+                                        <TableCell className="hidden lg:table-cell">
+                                            <span className="text-sm text-muted-foreground">
+                                                {task.dueDate.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })}
+                                            </span>
+                                        </TableCell>
 
-                                    <TableCell className="hidden xl:table-cell text-right pr-6">
-                                        <span className={cn(
-                                            "text-xs font-bold px-2 py-1 rounded-md",
-                                            daysLeft <= 3 && !task.completed ? "text-red-500 bg-red-500/10" : "text-muted-foreground bg-muted"
-                                        )}>
-                                            {task.completed ? "Finalizado" : daysLeft === 0 ? "Hoje" : `${daysLeft} dias`}
-                                        </span>
-                                    </TableCell>
+                                        <TableCell className="hidden xl:table-cell text-right pr-6">
+                                            <span className={cn(
+                                                "text-xs font-bold px-2 py-1 rounded-md",
+                                                daysLeft <= 3 && !task.completed ? "text-red-500 bg-red-500/10" : "text-muted-foreground bg-muted"
+                                            )}>
+                                                {task.completed ? "Finalizado" : daysLeft === 0 ? "Hoje" : `${daysLeft} dias`}
+                                            </span>
+                                        </TableCell>
 
-                                    <TableCell className="pr-6">
-                                        <DropdownMenu>
-                                            <DropdownMenuTrigger asChild>
-                                                <Button
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    className="h-8 w-8 rounded-lg hover:bg-accent text-muted-foreground transition-colors"
-                                                >
-                                                    <MoreHorizontal className="h-4 w-4" />
-                                                </Button>
-                                            </DropdownMenuTrigger>
-                                            <DropdownMenuContent align="end" className="w-52 rounded-xl p-2 shadow-xl border-border/50">
-                                                <DropdownMenuLabel className="text-xs font-bold uppercase text-muted-foreground px-2 py-1.5">
-                                                    Opções
-                                                </DropdownMenuLabel>
-                                                <DropdownMenuSeparator className="opacity-50" />
+                                        <TableCell className="pr-6">
+                                            <DropdownMenu>
+                                                <DropdownMenuTrigger asChild>
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        className="h-8 w-8 rounded-lg hover:bg-accent text-muted-foreground transition-colors"
+                                                    >
+                                                        <MoreHorizontal className="h-4 w-4" />
+                                                    </Button>
+                                                </DropdownMenuTrigger>
+                                                <DropdownMenuContent align="end" className="w-52 rounded-xl p-2 shadow-xl border-border/50">
+                                                    <DropdownMenuLabel className="text-xs font-bold uppercase text-muted-foreground px-2 py-1.5">
+                                                        Opções
+                                                    </DropdownMenuLabel>
+                                                    <DropdownMenuSeparator className="opacity-50" />
 
-                                                <DropdownMenuItem className="rounded-md cursor-pointer gap-2 py-2">
-                                                    <Pencil className="h-4 w-4 text-muted-foreground" />
-                                                    <span>Editar</span>
-                                                </DropdownMenuItem>
+                                                    <DropdownMenuItem className="rounded-md cursor-pointer gap-2 py-2">
+                                                        <Pencil className="h-4 w-4 text-muted-foreground" />
+                                                        <span>Editar</span>
+                                                    </DropdownMenuItem>
 
-                                                <DropdownMenuItem className="rounded-md cursor-pointer gap-2 py-2">
-                                                    <FolderInput className="h-4 w-4 text-muted-foreground" />
-                                                    <span>Mover para...</span>
-                                                </DropdownMenuItem>
+                                                    <DropdownMenuItem className="rounded-md cursor-pointer gap-2 py-2">
+                                                        <FolderInput className="h-4 w-4 text-muted-foreground" />
+                                                        <span>Mover para...</span>
+                                                    </DropdownMenuItem>
 
-                                                <DropdownMenuSeparator className="opacity-50" />
+                                                    <DropdownMenuSeparator className="opacity-50" />
 
-                                                <DropdownMenuItem className="rounded-md cursor-pointer gap-2 py-2 text-red-500 focus:text-red-500 focus:bg-red-500/10 font-medium">
-                                                    <Trash2 className="h-4 w-4" />
-                                                    <span>Excluir</span>
-                                                </DropdownMenuItem>
-                                            </DropdownMenuContent>
-                                        </DropdownMenu>
-                                    </TableCell>
-                                </TableRow>
-                            );
-                        })}
+                                                    <DropdownMenuItem className="rounded-md cursor-pointer gap-2 py-2 text-red-500 focus:text-red-500 focus:bg-red-500/10 font-medium">
+                                                        <Trash2 className="h-4 w-4" />
+                                                        <span>Excluir</span>
+                                                    </DropdownMenuItem>
+                                                </DropdownMenuContent>
+                                            </DropdownMenu>
+                                        </TableCell>
+                                    </TableRow>
+                                );
+                            })
+                        )}
                     </TableBody>
                 </Table>
             </ScrollArea>
