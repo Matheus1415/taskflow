@@ -1,0 +1,17 @@
+import { z } from "zod";
+
+export const taskEditSchema = z.object({
+    title: z.string().min(1, "O título é obrigatório").max(255),
+    description: z.string().optional(),
+    status: z.enum(["Pendente", "Em Progresso", "Concluída"]),
+    priority: z.enum(["Baixa", "Média", "Alta"]),
+    dueDate: z.preprocess(
+      (value) => {
+        if (!value) return undefined;
+        return value instanceof Date ? value : new Date(value as string);
+      },
+      z.date({ required_error: "A data de vencimento é obrigatória" }),
+    ),
+});
+
+export type TaskEditFormValues = z.infer<typeof taskEditSchema>;

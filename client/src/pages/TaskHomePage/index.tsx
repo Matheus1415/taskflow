@@ -12,6 +12,8 @@ import TaskToolbar from "./components/TaskToolbar";
 import type { Task } from "@/types/task";
 import { TaskCreateModal } from "./components/TaskCreateModal";
 import { useBoolean } from "usehooks-ts";
+import { useState } from "react";
+import { TaskEditModal } from "./components/TaskEditModal";
 
 export default function TaskHomePage() {
     const tasks: Task[] = [
@@ -30,6 +32,13 @@ export default function TaskHomePage() {
     const taskCompleted = tasks.filter(task => task.status === "Concluída");
 
     const { value: isOpenDetails, setValue: setOpenCreateModal } = useBoolean(false);
+    const { value: isOpenEditModal, setValue: setOpenEditModal } = useBoolean(false);
+    const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+
+    const handleSelectTask = (task: Task) => {
+        setSelectedTask(task);
+        setOpenEditModal(true);
+    }
 
     return (
         <div className="flex flex-col gap-8 min-h-[730px]">
@@ -47,7 +56,7 @@ export default function TaskHomePage() {
                 </div>
             </section>
 
-            <TaskToolbar onOpenChange={setOpenCreateModal}/>
+            <TaskToolbar onOpenChange={setOpenCreateModal} />
 
             <Tabs defaultValue="in-progress" className="w-full space-y-6">
                 <div className="flex items-center justify-between border-b border-border/40 pb-1">
@@ -85,19 +94,23 @@ export default function TaskHomePage() {
                 </div>
 
                 <TabsContent value="nao-iniciadas" className="mt-0 border-none outline-none">
-                    <TaskTable tasks={taskPending} />
+                    <TaskTable tasks={taskPending} handleSelectTask={handleSelectTask} />
                 </TabsContent>
 
                 <TabsContent value="in-progress" className="mt-0 border-none outline-none">
-                    <TaskTable tasks={taskInProgress} />
+                    <TaskTable tasks={taskInProgress} handleSelectTask={handleSelectTask} />
                 </TabsContent>
 
                 <TabsContent value="concluidas" className="mt-0 border-none outline-none">
-                    <TaskTable tasks={taskCompleted} />
+                    <TaskTable tasks={taskCompleted} handleSelectTask={handleSelectTask} />
                 </TabsContent>
             </Tabs>
 
             <TaskCreateModal open={isOpenDetails} onOpenChange={setOpenCreateModal} />
+
+            {selectedTask && isOpenEditModal &&(
+                <TaskEditModal open={isOpenEditModal} onOpenChange={setOpenEditModal} task={selectedTask} />
+            )}
         </div>
     );
 }

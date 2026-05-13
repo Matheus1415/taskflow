@@ -44,9 +44,10 @@ import type { Task } from "@/types/task";
 
 interface TaskTableProps {
     tasks: Task[];
+    handleSelectTask: (task: Task) => void;
 }
 
-export function TaskTable({ tasks }: TaskTableProps) {
+export function TaskTable({ tasks, handleSelectTask }: TaskTableProps) {
     const [selectedTasks, setSelectedTasks] = useState<string[]>([]);
     const today = new Date("2026-05-12");
 
@@ -262,7 +263,9 @@ export function TaskTable({ tasks }: TaskTableProps) {
                                                     </DropdownMenuLabel>
                                                     <DropdownMenuSeparator className="opacity-50" />
 
-                                                    <DropdownMenuItem className="rounded-md cursor-pointer gap-2 py-2">
+                                                    <DropdownMenuItem className="rounded-md cursor-pointer gap-2 py-2"
+                                                        onSelect={() => handleSelectTask(task)}
+                                                    >
                                                         <Pencil className="h-4 w-4 text-muted-foreground" />
                                                         <span>Editar</span>
                                                     </DropdownMenuItem>
