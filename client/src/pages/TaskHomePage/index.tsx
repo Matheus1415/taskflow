@@ -68,6 +68,10 @@ export default function TaskHomePage() {
         });
     };
 
+    const handleDeleteBulk = (ids: string[]) => {
+        console.log("IDs para exclusão em massa:", ids);
+    };
+
     return (
         <div className="flex flex-col gap-8 min-h-[730px]">
             <section className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
@@ -122,15 +126,16 @@ export default function TaskHomePage() {
                 </div>
 
                 <TabsContent value="nao-iniciadas" className="mt-0 border-none outline-none">
-                    <TaskTable tasks={taskPending} handleSelectTask={handleSelectTask} handleDeleteTask={handleDeleteTask} />
+                    <TaskTable tasks={taskPending} handleSelectTask={handleSelectTask} handleDeleteTask={handleDeleteTask} handleDeleteBulk={handleDeleteBulk} />
                 </TabsContent>
 
                 <TabsContent value="in-progress" className="mt-0 border-none outline-none">
-                    <TaskTable tasks={taskInProgress} handleSelectTask={handleSelectTask} handleDeleteTask={handleDeleteTask} />
+                    <TaskTable tasks={taskInProgress} handleSelectTask={handleSelectTask} handleDeleteTask={handleDeleteTask} handleDeleteBulk={handleDeleteBulk} />
                 </TabsContent>
 
                 <TabsContent value="concluidas" className="mt-0 border-none outline-none">
-                    <TaskTable tasks={taskCompleted} handleSelectTask={handleSelectTask} handleDeleteTask={handleDeleteTask} />
+                    <TaskTable tasks={taskCompleted} handleSelectTask={handleSelectTask} 
+                                handleDeleteTask={handleDeleteTask} handleDeleteBulk={handleDeleteBulk} />
                 </TabsContent>
             </Tabs>
 

@@ -46,9 +46,10 @@ interface TaskTableProps {
     tasks: Task[];
     handleSelectTask: (task: Task) => void;
     handleDeleteTask: (task: Task) => void;
+    handleDeleteBulk: (ids: string[]) => void;
 }
 
-export function TaskTable({ tasks, handleSelectTask, handleDeleteTask }: TaskTableProps) {
+export function TaskTable({ tasks, handleSelectTask, handleDeleteTask, handleDeleteBulk }: TaskTableProps) {
     const [selectedTasks, setSelectedTasks] = useState<string[]>([]);
     const today = new Date("2026-05-12");
 
@@ -68,9 +69,31 @@ export function TaskTable({ tasks, handleSelectTask, handleDeleteTask }: TaskTab
         return diffDays;
     };
 
+    const onBulkDeleteClick = () => {
+        handleDeleteBulk(selectedTasks);
+        setSelectedTasks([]);
+    };
+
     return (
         <div className="w-full bg-card rounded-xl border-none shadow-sm">
+
             <ScrollArea className="h-[400px] w-full rounded-xl border-none">
+                <div className="flex items-center px-4 py-2 h-14 border-b border-border/40">
+                    {selectedTasks.length > 0 ? (
+                        <Button
+                            variant="ghost"
+                            onClick={onBulkDeleteClick}
+                            className="gap-2 cursor-pointer rounded-xl text-red-400 hover:text-red-500 hover:bg-red-500/10 transition-all animate-in fade-in slide-in-from-left-4"
+                        >
+                            <Trash2 className="h-4 w-4" />
+                            Excluir selecionados ({selectedTasks.length})
+                        </Button>
+                    ) : (
+                        <span className="text-sm text-muted-foreground ml-2">
+                            {tasks.length} tarefas no total
+                        </span>
+                    )}
+                </div>
                 <Table className="border-collapse">
                     <TableHeader className="bg-muted/60 sticky top-0 z-10 backdrop-blur-md">
                         <TableRow className="hover:bg-transparent border-b border-border/50">
