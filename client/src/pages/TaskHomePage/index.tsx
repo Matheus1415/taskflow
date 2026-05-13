@@ -11,6 +11,7 @@ import { TaskTable } from "./components/TaskTable";
 import TaskToolbar from "./components/TaskToolbar";
 import type { Task } from "@/types/task";
 import { TaskCreateModal } from "./components/TaskCreateModal";
+import { useBoolean } from "usehooks-ts";
 
 export default function TaskHomePage() {
     const tasks: Task[] = [
@@ -28,7 +29,7 @@ export default function TaskHomePage() {
     const taskPending = tasks.filter(task => task.status === "Pendente");
     const taskCompleted = tasks.filter(task => task.status === "Concluída");
 
-    const [isCreateModalOpen, setIsCreateModalOpen] = useBoolean(false);
+    const { value: isOpenDetails, setValue: setOpenCreateModal } = useBoolean(false);
 
     return (
         <div className="flex flex-col gap-8 min-h-[730px]">
@@ -46,7 +47,7 @@ export default function TaskHomePage() {
                 </div>
             </section>
 
-            <TaskToolbar />
+            <TaskToolbar onOpenChange={setOpenCreateModal}/>
 
             <Tabs defaultValue="in-progress" className="w-full space-y-6">
                 <div className="flex items-center justify-between border-b border-border/40 pb-1">
@@ -84,19 +85,19 @@ export default function TaskHomePage() {
                 </div>
 
                 <TabsContent value="nao-iniciadas" className="mt-0 border-none outline-none">
-                    <TaskTable tasks={taskPending}/>
+                    <TaskTable tasks={taskPending} />
                 </TabsContent>
 
                 <TabsContent value="in-progress" className="mt-0 border-none outline-none">
-                    <TaskTable tasks={taskInProgress}/>
+                    <TaskTable tasks={taskInProgress} />
                 </TabsContent>
 
                 <TabsContent value="concluidas" className="mt-0 border-none outline-none">
-                    <TaskTable tasks={taskCompleted}/>
+                    <TaskTable tasks={taskCompleted} />
                 </TabsContent>
             </Tabs>
 
-            <TaskCreateModal open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen} />
+            <TaskCreateModal open={isOpenDetails} onOpenChange={setOpenCreateModal} />
         </div>
     );
 }

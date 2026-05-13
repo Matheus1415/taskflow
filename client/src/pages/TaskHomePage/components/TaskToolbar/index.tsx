@@ -14,7 +14,11 @@ import {
   TooltipTrigger 
 } from "@/components/ui/tooltip";
 
-export default function TaskToolbar() {
+interface TaskToolbarProps {
+  onOpenChange: (open: boolean) => void;
+}
+
+export default function TaskToolbar({ onOpenChange }: TaskToolbarProps) {
   return (
     <div className="flex flex-col gap-3 p-1 md:flex-row md:items-center md:justify-between">
       <div className="flex flex-1 items-center gap-2 max-w-2xl">
@@ -59,7 +63,8 @@ export default function TaskToolbar() {
 
       <div className="flex items-center gap-2">
         <Button 
-          className="h-10 rounded-xl px-4 shadow-md shadow-primary/10 transition-all hover:shadow-lg hover:shadow-primary/20 active:scale-95"
+          className="h-10 cursor-pointer rounded-xl px-4 shadow-md shadow-primary/10 transition-all hover:shadow-lg hover:shadow-primary/20 active:scale-95"
+          onClick={() => onOpenChange(true)}
         >
           <Plus className="mr-2 h-4 w-4 stroke-[3px]" />
           <span className="font-semibold">Nova Tarefa</span>
