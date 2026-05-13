@@ -45,9 +45,10 @@ import type { Task } from "@/types/task";
 interface TaskTableProps {
     tasks: Task[];
     handleSelectTask: (task: Task) => void;
+    handleDeleteTask: (task: Task) => void;
 }
 
-export function TaskTable({ tasks, handleSelectTask }: TaskTableProps) {
+export function TaskTable({ tasks, handleSelectTask, handleDeleteTask }: TaskTableProps) {
     const [selectedTasks, setSelectedTasks] = useState<string[]>([]);
     const today = new Date("2026-05-12");
 
@@ -277,7 +278,9 @@ export function TaskTable({ tasks, handleSelectTask }: TaskTableProps) {
 
                                                     <DropdownMenuSeparator className="opacity-50" />
 
-                                                    <DropdownMenuItem className="rounded-md cursor-pointer gap-2 py-2 text-red-500 focus:text-red-500 focus:bg-red-500/10 font-medium">
+                                                    <DropdownMenuItem className="rounded-md cursor-pointer gap-2 py-2 text-red-500 focus:text-red-500 focus:bg-red-500/10 font-medium"
+                                                        onSelect={() => handleDeleteTask(task)}
+                                                    >
                                                         <Trash2 className="h-4 w-4" />
                                                         <span>Excluir</span>
                                                     </DropdownMenuItem>

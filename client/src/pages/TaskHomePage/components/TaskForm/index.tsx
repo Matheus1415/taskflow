@@ -89,11 +89,11 @@ export function TaskForm({ form, onSubmit }: TaskFormProps) {
                                 <FormLabel className="font-semibold ml-1 text-neutral-400">Prioridade</FormLabel>
                                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                                     <FormControl>
-                                        <SelectTrigger className="w-full h-11 bg-neutral-900 border border-neutral-700 rounded-xl text-neutral-200 hover:border-neutral-600 transition-all focus:ring-2 focus:ring-blue-600/40 focus:border-blue-600">
+                                        <SelectTrigger className="w-full h-11 hover:border-neutral-600 transition-all focus:ring-2 focus:ring-blue-600/40 focus:border-blue-600">
                                             <SelectValue placeholder="Selecione" />
                                         </SelectTrigger>
                                     </FormControl>
-                                    <SelectContent className="bg-neutral-900 border border-neutral-700 rounded-xl shadow-xl text-neutral-200">
+                                    <SelectContent className="rounded-xl shadow-xl">
                                         <SelectItem value="Baixa">
                                             <div className="flex items-center gap-2">
                                                 <ArrowDown className="h-4 text-green-500" /> Baixa
@@ -124,11 +124,11 @@ export function TaskForm({ form, onSubmit }: TaskFormProps) {
                                 <FormLabel className="font-semibold ml-1 text-neutral-400">Status Inicial</FormLabel>
                                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                                     <FormControl>
-                                        <SelectTrigger className="w-full h-11 bg-neutral-900 border border-neutral-700 rounded-xl text-neutral-200 hover:border-neutral-600 transition-all focus:ring-2 focus:ring-blue-600/40 focus:border-blue-600">
+                                        <SelectTrigger className="w-full h-11 hover:border-neutral-600 transition-all focus:ring-2 focus:ring-blue-600/40 focus:border-blue-600">
                                             <SelectValue placeholder="Status" />
                                         </SelectTrigger>
                                     </FormControl>
-                                    <SelectContent className="bg-neutral-900 border border-neutral-700 rounded-xl shadow-xl text-neutral-200">
+                                    <SelectContent className="rounded-xl shadow-xl">
                                         <SelectGroup>
                                             <SelectLabel className="text-neutral-500 text-[10px] uppercase tracking-wider px-2 py-1.5">
                                                 Status da Tarefa
@@ -184,7 +184,7 @@ export function TaskForm({ form, onSubmit }: TaskFormProps) {
                                                 type="button"
                                                 variant="outline"
                                                 className={cn(
-                                                    "w-full justify-between border-neutral-700 bg-neutral-900 text-neutral-200 hover:bg-neutral-900/80"
+                                                    "w-full justify-between"
                                                 )}
                                             >
                                                 {field.value ? format(field.value, "dd/MM/yyyy") : "Selecione a data"}
@@ -192,7 +192,7 @@ export function TaskForm({ form, onSubmit }: TaskFormProps) {
                                             </Button>
                                         </FormControl>
                                     </PopoverTrigger>
-                                    <PopoverContent className="w-auto border-neutral-700 bg-neutral-900 p-0" align="start">
+                                    <PopoverContent className="w-auto border-neutral-700 p-0" align="start">
                                         <Calendar
                                             mode="single"
                                             selected={field.value || undefined}

@@ -55,7 +55,7 @@ export function TaskEditModal({ open, onOpenChange, task }: TaskEditModalProps) 
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="bg-neutral-900 border border-neutral-700 text-gray-200 lg:max-w-4xl max-h-[90vh] flex flex-col">
+            <DialogContent className="lg:max-w-4xl max-h-[90vh] flex flex-col">
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2 text-2xl">
                         <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">

@@ -14,6 +14,7 @@ import { TaskCreateModal } from "./components/TaskCreateModal";
 import { useBoolean } from "usehooks-ts";
 import { useState } from "react";
 import { TaskEditModal } from "./components/TaskEditModal";
+import Swal from "sweetalert2";
 
 export default function TaskHomePage() {
     const tasks: Task[] = [
@@ -39,6 +40,33 @@ export default function TaskHomePage() {
         setSelectedTask(task);
         setOpenEditModal(true);
     }
+
+    const handleDeleteTask = (task: Task) => {
+        Swal.fire({
+            title: "Remover Tarefa?",
+            text: `Tem certeza que deseja excluir a tarefa ${task.title}?`,
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#06b6d4",
+            cancelButtonColor: "#171717",
+            confirmButtonText: "Sim, remover",
+            background: "#0a0a0a",
+            color: "#fff",
+            customClass: {
+                popup: 'border border-white/10 rounded-3xl'
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Swal.fire({
+                    title: "Excluído!",
+                    text: "A tarefa foi excluída.",
+                    icon: "success",
+                    background: "#0a0a0a",
+                    color: "#fff"
+                });
+            }
+        });
+    };
 
     return (
         <div className="flex flex-col gap-8 min-h-[730px]">
@@ -94,21 +122,21 @@ export default function TaskHomePage() {
                 </div>
 
                 <TabsContent value="nao-iniciadas" className="mt-0 border-none outline-none">
-                    <TaskTable tasks={taskPending} handleSelectTask={handleSelectTask} />
+                    <TaskTable tasks={taskPending} handleSelectTask={handleSelectTask} handleDeleteTask={handleDeleteTask} />
                 </TabsContent>
 
                 <TabsContent value="in-progress" className="mt-0 border-none outline-none">
-                    <TaskTable tasks={taskInProgress} handleSelectTask={handleSelectTask} />
+                    <TaskTable tasks={taskInProgress} handleSelectTask={handleSelectTask} handleDeleteTask={handleDeleteTask} />
                 </TabsContent>
 
                 <TabsContent value="concluidas" className="mt-0 border-none outline-none">
-                    <TaskTable tasks={taskCompleted} handleSelectTask={handleSelectTask} />
+                    <TaskTable tasks={taskCompleted} handleSelectTask={handleSelectTask} handleDeleteTask={handleDeleteTask} />
                 </TabsContent>
             </Tabs>
 
             <TaskCreateModal open={isOpenDetails} onOpenChange={setOpenCreateModal} />
 
-            {selectedTask && isOpenEditModal &&(
+            {selectedTask && isOpenEditModal && (
                 <TaskEditModal open={isOpenEditModal} onOpenChange={setOpenEditModal} task={selectedTask} />
             )}
         </div>
