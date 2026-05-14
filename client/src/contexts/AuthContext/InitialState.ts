@@ -12,7 +12,7 @@ export const getOldAuthData = (): AuthContextState => {
     return {
       isAuthenticated: false,
       user: undefined,
-      isLoading: true
+      isLoading: false
     };
   }
 

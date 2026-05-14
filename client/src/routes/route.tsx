@@ -10,7 +10,7 @@ export function Router() {
             <Routes>
                 <Route path="/" element={<ProtectedRoutes><LayoutDefault /></ProtectedRoutes>}>
                     <Route index element={<TaskHomePage />} />
-                </Route>
+                </Route>    
 
                 <Route path="/login" element={<ProtectedRoutes publicRoute><LoginPage /></ProtectedRoutes>} />
             </Routes>
