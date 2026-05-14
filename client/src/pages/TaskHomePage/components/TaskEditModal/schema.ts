@@ -3,9 +3,9 @@ import { z } from "zod";
 export const taskEditSchema = z.object({
   title: z.string().min(1, "O título é obrigatório").max(255),
   description: z.string().optional(),
-  status: z.enum(["pending", "in_progress", "completed"]),
+  status: z.enum(["pending", "in_progress", "done"]),
   priority: z.enum(["low", "medium", "high"]),
-  dueDate: z.preprocess(
+  due_date: z.preprocess(
     (value) => {
       if (!value) return undefined;
       return value instanceof Date ? value : new Date(value as string);

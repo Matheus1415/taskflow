@@ -45,10 +45,10 @@ export default function LayoutDefault() {
 
             <div className="flex flex-col">
               <h1 className="text-xl font-black tracking-tighter leading-none uppercase italic">
-                TaskFlow
+                Task Flow
               </h1>
               <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-neutral-500 mt-1">
-                High Performance Management
+                Gerencie suas tarefas com eficiência
               </span>
             </div>
           </div>

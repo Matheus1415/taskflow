@@ -148,7 +148,7 @@ export function TaskForm({ form, onSubmit, id }: TaskFormProps) {
                         </div>
                       </SelectItem>
 
-                      <SelectItem value="completed" className="cursor-pointer rounded-md transition-colors focus:bg-emerald-500/10 focus:text-emerald-500">
+                      <SelectItem value="done" className="cursor-pointer rounded-md transition-colors focus:bg-emerald-500/10 focus:text-emerald-500">
                         <div className="flex items-center gap-2">
                           <CheckCircle2 className="h-4 w-4 text-emerald-500" />
                           <span>Concluída</span>
@@ -164,7 +164,7 @@ export function TaskForm({ form, onSubmit, id }: TaskFormProps) {
 
           <FormField
             control={form.control}
-            name="dueDate"
+            name="due_date"
             render={({ field }) => (
               <FormItem className="flex flex-col">
                 <FormLabel className="ml-1 font-semibold text-neutral-400">Prazo final</FormLabel>

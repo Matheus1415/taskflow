@@ -65,7 +65,7 @@ const statusMeta: Record<TaskStatus, { label: string; icon: React.ReactNode; cla
         icon: <CircleDashed className="h-5 w-5 text-blue-500 animate-[spin_3s_linear_infinite] transition-colors" />,
         className: "bg-blue-500/10 text-blue-500",
     },
-    completed: {
+    done: {
         label: "Concluída",
         icon: <CheckCircle2 className="h-5 w-5 text-green-500 fill-green-500/10 transition-colors" />,
         className: "bg-green-500/10 text-green-500",
@@ -128,36 +128,44 @@ export function TaskTable({
         }
     };
 
-    const getRemainingLabel = (task: Task) => {
-        if (task.completed_at) {
-            return "Finalizada";
-        }
-
-        const dueDate = parseISO(task.due_date);
-        const daysLeft = differenceInCalendarDays(startOfDay(dueDate), startOfDay(new Date()));
-
-        if (isToday(dueDate)) {
-            return "Hoje";
-        }
-
-        if (daysLeft < 0) {
-            return `${Math.abs(daysLeft)} dia(s) atrasada`;
-        }
-
-        return `${daysLeft} dia(s)`;
-    };
-
     const getRemainingClassName = (task: Task) => {
         if (task.completed_at) {
             return "text-green-500 bg-green-500/10";
         }
 
+        if (!task.due_date) {
+            return "text-muted-foreground bg-muted/30";
+        }
+
         const dueDate = parseISO(task.due_date);
+
         if (isToday(dueDate) || isPast(startOfDay(dueDate))) {
             return "text-red-500 bg-red-500/10";
         }
 
         return "text-muted-foreground bg-muted";
+    };
+
+    const getRemainingLabel = (task: Task) => {
+        if (task.completed_at) {
+            return "Concluída";
+        }
+
+        if (!task.due_date) {
+            return "Sem prazo";
+        }
+
+        const dueDate = parseISO(task.due_date);
+
+        if (isPast(startOfDay(dueDate)) && !isToday(dueDate)) {
+            return "Atrasada";
+        }
+
+        if (isToday(dueDate)) {
+            return "Vence hoje";
+        }
+
+        return "No prazo";
     };
 
     if (isLoading && tasks.length === 0) {
@@ -252,7 +260,7 @@ export function TaskTable({
                                 <div className="flex items-center justify-end gap-2">
                                     <Clock className="h-4 w-4 text-primary" />
                                     Restante
-                                    y               </div>
+                                </div>
                             </TableHead>
 
                             <TableHead className="w-[60px] pr-6" />
@@ -280,9 +288,9 @@ export function TaskTable({
                             </TableRow>
                         ) : (
                             tasks.map((task) => {
-                                const dueDate = parseISO(task.due_date);
-                                const status = statusMeta[task.status];
-                                const priority = priorityMeta[task.priority];
+                                const dueDate = task.due_date ? parseISO(task.due_date) : null;
+                                const status = statusMeta[task.status] || { icon: null, label: task.status, className: "" };
+                                const priority = priorityMeta[task.priority] || { label: task.priority, className: "" };
 
                                 return (
                                     <TableRow
@@ -350,11 +358,13 @@ export function TaskTable({
 
                                         <TableCell className="hidden lg:table-cell">
                                             <span className="text-sm text-muted-foreground">
-                                                {format(dueDate, "dd 'de' MMM yyyy", { locale: ptBR })}
+                                                {/* 3. Renderização condicional da data formatada */}
+                                                {dueDate ? format(dueDate, "dd 'de' MMM yyyy", { locale: ptBR }) : "Sem prazo"}
                                             </span>
                                         </TableCell>
 
                                         <TableCell className="hidden pr-6 text-right xl:table-cell">
+                                            {/* 4. Verificação adicional dentro das funções auxiliares */}
                                             <span className={cn("rounded-md px-2 py-1 text-xs font-bold", getRemainingClassName(task))}>
                                                 {getRemainingLabel(task)}
                                             </span>

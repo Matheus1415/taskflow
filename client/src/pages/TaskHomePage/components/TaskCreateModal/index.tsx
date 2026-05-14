@@ -14,6 +14,8 @@ import { Button } from "@/components/ui/button";
 import { TaskForm } from "../TaskForm";
 import { taskSchema, type TaskFormValues } from "./schema";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { toast } from "@/utils/notifications";
+import { useTaskCrud } from "@/http/request/task/useTaskCrud";
 
 interface TaskCreateModalProps {
     open: boolean;
@@ -28,14 +30,29 @@ export function TaskCreateModal({ open, onOpenChange }: TaskCreateModalProps) {
             description: "",
             status: "pending",
             priority: "low",
-            dueDate: new Date(),
+            due_date: new Date(),
         },
     });
 
-    const handleCreateTask = (data: TaskFormValues) => {
-        console.log("Tarefa Criada:", data);
+    const { taskCreate } = useTaskCrud();
+
+    async function handleCreateTask(data: TaskFormValues) {
         onOpenChange(false);
         form.reset();
+        try {
+            await taskCreate(data);
+            toast.success("Tarefa criada com sucesso!");
+            form.reset();
+            form.clearErrors();
+            onOpenChange(false);
+        } catch (error: any) {
+            if (error && error.success === false) {
+                toast.error("Ops!", error.message);
+                return;
+            }
+
+            toast.error("Erro de Conexão", "Nao foi possivel contatar o servidor.");
+        }
     };
 
     return (

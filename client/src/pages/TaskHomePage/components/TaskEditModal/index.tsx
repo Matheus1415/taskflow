@@ -16,6 +16,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { taskEditSchema, type TaskEditFormValues } from "./schema";
 import type { Task } from "@/types/task";
 import { useEffect } from "react";
+import { toast } from "@/utils/notifications";
+import { useTaskCrud } from "@/http/request/task/useTaskCrud";
 
 interface TaskEditModalProps {
     open: boolean;
@@ -31,14 +33,29 @@ export function TaskEditModal({ open, onOpenChange, task }: TaskEditModalProps) 
             description: task.description,
             status: task.status,
             priority: task.priority,
-            dueDate: new Date(task.due_date),
+            due_date: new Date(task.due_date),
         },
     });
 
-    const handleEditTask = (data: TaskEditFormValues) => {
-        console.log("Tarefa Editada:", data);
+    const { taskEdit } = useTaskCrud();
+
+    async function handleEditTask(data: TaskEditFormValues) {
         onOpenChange(false);
         form.reset();
+        try {
+            await taskEdit(task.id, data);
+            toast.success("Tarefa editada com sucesso!");
+            form.reset();
+            form.clearErrors();
+            onOpenChange(false);
+        } catch (error: any) {
+            if (error && error.success === false) {
+                toast.error("Ops!", error.message);
+                return;
+            }
+
+            toast.error("Erro de Conexão", "Nao foi possivel contatar o servidor.");
+        }
     };
 
     useEffect(() => {
@@ -48,7 +65,7 @@ export function TaskEditModal({ open, onOpenChange, task }: TaskEditModalProps) 
                 description: task.description,
                 status: task.status,
                 priority: task.priority,
-                dueDate: new Date(task.due_date),
+                due_date: new Date(task.due_date),
             });
         }
     }, [task, open, form]);
