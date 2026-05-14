@@ -31,7 +31,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { cn } from "@/lib/utils";
+import { cn } from "@/utils/utils";
 import type { TaskFormValues } from "../TaskCreateModal/schema";
 import type { UseFormReturn } from "react-hook-form";
 
