@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import z from "zod";
@@ -6,7 +6,6 @@ import {
   Lock, Mail, ArrowRight, Fingerprint,
   EyeOff, Eye, CheckSquare, LayoutDashboard
 } from "lucide-react";
-import { Link, useNavigate } from "react-router";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -30,15 +29,8 @@ export const loginSchema = z.object({
 export type LoginFormValues = z.infer<typeof loginSchema>;
 
 export function LoginPage() {
-  const { state: { user }, actions: { login } } = useAuthContext();
-  const navigate = useNavigate();
+  const { actions: { login } } = useAuthContext();
   const [showPassword, setShowPassword] = useState(false);
-
-  useEffect(() => {
-    if (user) {
-      navigate('/');
-    }
-  }, [user, navigate]);
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -52,9 +44,7 @@ export function LoginPage() {
     try {
       await login(data);
       toast.success('Login realizado com sucesso!', 'Você está sendo redirecionado para o dashboard.');
-      form.reset();
     } catch (error: any) {
-      const errorMessage = error?.response?.data?.message || error?.message || 'Erro inesperado';
 
       if (error && error.success === false) {
         toast.error('Ops!', error.message);
@@ -63,8 +53,6 @@ export function LoginPage() {
       }
     }
   }
-
-  if (user) return null;
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-neutral-950 text-neutral-200 px-6 py-10 selection:bg-blue-500/30 font-sans">

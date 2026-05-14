@@ -1,8 +1,16 @@
+export type TaskStatus = "pending" | "in_progress" | "completed";
+export type TaskPriority = "low" | "medium" | "high";
+
 export type Task = {
-  id: string;
+  id: number;
+  user_id: number;
   title: string;
-  status: "Pendente" | "Em Progresso" | "Concluída";
-  priority: "Baixa" | "Média" | "Alta";
-  dueDate: Date;
-  completed: boolean;
+  description: string;
+  status: TaskStatus;
+  priority: TaskPriority;
+  due_date: string; 
+  completed_at: string | null;
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
 };

@@ -31,7 +31,7 @@ export function TaskEditModal({ open, onOpenChange, task }: TaskEditModalProps) 
             description: task.description,
             status: task.status,
             priority: task.priority,
-            dueDate: task.dueDate,
+            dueDate: new Date(task.due_date),
         },
     });
 
@@ -48,7 +48,7 @@ export function TaskEditModal({ open, onOpenChange, task }: TaskEditModalProps) 
                 description: task.description,
                 status: task.status,
                 priority: task.priority,
-                dueDate: task.dueDate,
+                dueDate: new Date(task.due_date),
             });
         }
     }, [task, open, form]);

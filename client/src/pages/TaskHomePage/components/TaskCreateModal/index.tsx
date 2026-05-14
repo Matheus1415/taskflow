@@ -26,8 +26,8 @@ export function TaskCreateModal({ open, onOpenChange }: TaskCreateModalProps) {
         defaultValues: {
             title: "",
             description: "",
-            status: "Pendente",
-            priority: "Baixa",
+            status: "pending",
+            priority: "low",
             dueDate: new Date(),
         },
     });
