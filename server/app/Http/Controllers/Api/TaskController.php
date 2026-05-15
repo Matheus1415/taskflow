@@ -87,7 +87,8 @@ class TaskController extends Controller
 
         return $this->success(
             'Tarefa criada com sucesso',
-            $task
+            $task,
+            201
         );
     }
 
