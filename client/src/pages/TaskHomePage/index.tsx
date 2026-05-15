@@ -19,6 +19,7 @@ import { TaskCreateModal } from "./components/TaskCreateModal";
 import { TaskEditModal } from "./components/TaskEditModal";
 import { useTasks } from "@/http/request/task/useTasks";
 import { useTaskCrud } from "@/http/request/task/useTaskCrud";
+import { toast } from "@/utils/notifications";
 
 const PER_PAGE = 50;
 type TaskViewStatus = TaskStatus | "deleted";
@@ -169,11 +170,13 @@ export default function TaskHomePage() {
         const selectedTasks = loadedTasks.filter((task) => ids.includes(task.id));
         const hasTrashedTasks = selectedTasks.some((task) => task.deleted_at !== null);
 
+        const taskTitles = selectedTasks.map(t => t.title).join(", ");
+
         const result = await Swal.fire({
             title: hasTrashedTasks ? "Excluir tarefas em definitivo?" : "Mover tarefas para a lixeira?",
             text: hasTrashedTasks
-                ? `${ids.length} tarefa(s) serao removidas permanentemente.`
-                : `${ids.length} tarefa(s) serao enviadas para a lixeira.`,
+                ? `${ids.length} tarefa(s) serão removidas permanentemente.`
+                : `${ids.length} tarefa(s) serão enviadas para a lixeira.`,
             icon: "warning",
             showCancelButton: true,
             confirmButtonColor: "#06b6d4",
@@ -187,53 +190,98 @@ export default function TaskHomePage() {
             return;
         }
 
-        await Promise.all(ids.map((id) => taskDelete(id)));
+        try {
+            await Promise.all(ids.map((id) => taskDelete(id)));
 
-        setLoadedTasks((previous) => {
+            setLoadedTasks((previous) => {
+                if (hasTrashedTasks) {
+                    return previous.filter((task) => !ids.includes(task.id));
+                }
+
+                return previous.map((task) => (
+                    ids.includes(task.id)
+                        ? { ...task, deleted_at: new Date().toISOString() }
+                        : task
+                ));
+            });
+
             if (hasTrashedTasks) {
-                return previous.filter((task) => !ids.includes(task.id));
+                toast.success(`Tarefa(s) ${taskTitles} excluída(s) permanentemente!`);
+            } else {
+                toast.success(`Tarefa(s) ${taskTitles} enviada(s) para a lixeira!`);
             }
 
-            return previous.map((task) => (
-                ids.includes(task.id)
-                    ? { ...task, deleted_at: new Date().toISOString() }
-                    : task
-            ));
-        });
+        } catch (error) {
+            toast.error("Ocorreu um erro ao tentar excluir as tarefas.");
+        }
     };
 
     const handleStatusBulkUpdate = async (ids: number[], status: TaskStatus) => {
-        await Promise.all(ids.map((id) => taskEdit(id, { status })));
+        try {
+            const updatedTaskTitles = loadedTasks
+                .filter(task => ids.includes(task.id))
+                .map(task => task.title);
 
-        setLoadedTasks((previous) => previous.map((task) => {
-            if (!ids.includes(task.id)) {
-                return task;
-            }
+            await Promise.all(ids.map((id) => taskEdit(id, { status })));
 
-            return {
-                ...task,
-                status,
-                completed_at: status === "done" ? new Date().toISOString() : null,
-            };
-        }));
+            setLoadedTasks((previous) => previous.map((task) => {
+                if (!ids.includes(task.id)) {
+                    return task;
+                }
+
+                return {
+                    ...task,
+                    status,
+                    completed_at: status === "done" ? new Date().toISOString() : null,
+                };
+            }));
+
+            const taskListString = updatedTaskTitles.join(", ");
+            const actionLabel = status === "done" ? "concluída(s)" : "atualizada(s)";
+
+            toast.success(`Tarefa(s) ${taskListString} marcada(s) como ${actionLabel}!`);
+
+        } catch (error) {
+            toast.error("Erro ao atualizar tarefas em lote.");
+        }
     };
 
     const handleRestoreTask = async (task: Task) => {
-        await taskRestore(task.id);
-        setLoadedTasks((previous) => previous.map((currentTask) => (
-            currentTask.id === task.id
-                ? { ...currentTask, deleted_at: null }
-                : currentTask
-        )));
+        try {
+            await taskRestore(task.id);
+
+            setLoadedTasks((previous) => previous.map((currentTask) => (
+                currentTask.id === task.id
+                    ? { ...currentTask, deleted_at: null }
+                    : currentTask
+            )));
+
+            toast.success(`Tarefa "${task.title}" restaurada com sucesso!`);
+        } catch (error) {
+            toast.error("Erro ao restaurar a tarefa.");
+        }
     };
 
     const handleRestoreBulk = async (ids: number[]) => {
-        await Promise.all(ids.map((id) => taskRestore(id)));
-        setLoadedTasks((previous) => previous.map((task) => (
-            ids.includes(task.id)
-                ? { ...task, deleted_at: null }
-                : task
-        )));
+        try {
+            const restoredTitles = loadedTasks
+                .filter((task) => ids.includes(task.id))
+                .map((task) => task.title)
+                .join(", ");
+
+            await Promise.all(ids.map((id) => taskRestore(id)));
+
+            setLoadedTasks((previous) => previous.map((task) => (
+                ids.includes(task.id)
+                    ? { ...task, deleted_at: null }
+                    : task
+            )));
+
+            toast.success(`Tarefa(s) ${restoredTitles} restaurada(s) com sucesso!`);
+
+        } catch (error) {
+            toast.error("Erro ao restaurar as tarefas selecionadas.");
+        }
     };
 
     const handleReachEnd = () => {
@@ -250,7 +298,7 @@ export default function TaskHomePage() {
     };
 
     return (
-        <div className="flex min-h-[730px] flex-col gap-8">
+        <div id="taskflow-page" className="flex min-h-[730px] flex-col gap-8">
             <section className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
                 <div className="space-y-1">
                     <div className="flex items-center gap-2 text-primary">
@@ -276,12 +324,13 @@ export default function TaskHomePage() {
             />
 
             <Tabs
+                id="task-status-tabs"
                 value={activeStatus}
                 onValueChange={(value) => setActiveStatus(value as TaskViewStatus)}
                 className="w-full space-y-6"
             >
                 <div className="flex items-center justify-between border-b border-border/40 pb-1">
-                    <TabsList className="h-auto rounded-xl border border-border/50 bg-muted/50 p-1">
+                    <TabsList id="task-tabs-list" className="h-auto rounded-xl border border-border/50 bg-muted/50 p-1">
                         <TabsTrigger
                             value="pending"
                             className="flex cursor-pointer items-center gap-2 rounded-lg px-4 py-2 transition-all data-[state=active]:bg-background data-[state=active]:shadow-sm"

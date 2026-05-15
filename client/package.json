@@ -9,7 +9,7 @@
     "lint": "eslint .",
     "preview": "vite preview"
   },
-   "dependencies": {
+  "dependencies": {
     "@fullcalendar/core": "^6.1.15",
     "@fullcalendar/daygrid": "^6.1.15",
     "@fullcalendar/interaction": "^6.1.15",
@@ -52,6 +52,7 @@
     "cmdk": "^1.1.1",
     "date-fns": "^4.1.0",
     "dayjs": "^1.11.19",
+    "driver.js": "^1.4.0",
     "embla-carousel-react": "^8.6.0",
     "framer-motion": "^12.26.1",
     "input-otp": "latest",

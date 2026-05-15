@@ -215,13 +215,17 @@ export function TaskTable({
     }
 
     return (
-        <div className={cn(
+        <div
+            id="task-table"
+            className={cn(
             "w-full rounded-xl shadow-sm",
             isTrashView ? "border border-rose-500/20 bg-rose-500/5" : "bg-card",
         )}
         >
             <ScrollArea className="h-[400px] w-full rounded-xl border-none" onScroll={handleScroll}>
-                <div className={cn(
+                <div
+                    id="task-bulk-actions"
+                    className={cn(
                     "flex min-h-14 items-center justify-between gap-3 border-b px-4 py-2",
                     isTrashView ? "border-rose-500/20 bg-rose-500/5" : "border-border/40",
                 )}
