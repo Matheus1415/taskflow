@@ -12,7 +12,7 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 class TaskController extends Controller
 {
     use AuthorizesRequests;
-    
+
     public function __construct(
         private TaskService $service
     ) {
@@ -148,18 +148,17 @@ class TaskController extends Controller
      */
     public function destroy(int $id)
     {
-        $deleted = $this->service->destroy($id);
+        $task = $this->service->first($id);
 
-        if (!$deleted) {
-            return $this->error(
-                'Tarefa não encontrada',
-                404
-            );
+        if (!$task) {
+            return $this->error('Tarefa não encontrada', 404);
         }
 
-        return $this->success(
-            'Tarefa removida com sucesso'
-        );
+        $this->authorize('delete', $task);
+
+        $this->service->destroy($id);
+
+        return $this->success('Tarefa removida com sucesso', 204);
     }
 
     /**
@@ -178,6 +177,8 @@ class TaskController extends Controller
     public function restore(int $id)
     {
         $task = $this->service->restore($id);
+
+        $this->authorize('restore', $task);
 
         if (!$task) {
             return $this->error(

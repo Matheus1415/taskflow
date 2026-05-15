@@ -13,7 +13,7 @@ class TaskFactory extends Factory
         return [
             'title' => $this->faker->sentence(4),
             'description' => $this->faker->paragraph(),
-            'status' => $this->faker->randomElement(['pending', 'completed']),
+            'status' => $this->faker->randomElement(['pending', 'done', 'in_progress']),
             'priority' => $this->faker->randomElement(['low', 'medium', 'high']),
             'due_date' => $this->faker->dateTimeBetween('now', '+1 month'),
             'user_id' => User::factory(), 

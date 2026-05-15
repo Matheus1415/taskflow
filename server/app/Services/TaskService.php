@@ -128,30 +128,22 @@ class TaskService
 
     public function destroy(int $id): bool
     {
-        $task = Task::withTrashed()
-            ->where('user_id', Auth::id())
-            ->find($id);
+        $task = Task::withTrashed()->find($id);
 
         if (!$task) {
             return false;
         }
 
         if ($task->trashed()) {
-            $task->forceDelete();
-
-            return true;
+            return $task->forceDelete();
         }
 
-        $task->delete();
-
-        return true;
+        return $task->delete();
     }
 
     public function restore(int $id): ?Task
     {
-        $task = Task::onlyTrashed()
-            ->where('user_id', Auth::id())
-            ->find($id);
+        $task = Task::onlyTrashed()->find($id);
 
         if (!$task) {
             return null;
