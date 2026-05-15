@@ -23,7 +23,7 @@ O **TaskFlow API** é um backend desenvolvido com foco em arquitetura escalável
 
 ```bash
 git clone https://github.com/Matheus1415/taskflow-api.git
-cd taskflow-api
+cd server
 ```
 
 ### 2. Instale as dependências
