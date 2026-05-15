@@ -120,6 +120,7 @@ class TaskService
             $data['completed_at'] = null;
         }
 
+        unset($data['user_id']);
         $task->update($data);
 
         return $task->fresh();

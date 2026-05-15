@@ -7,9 +7,12 @@ use App\Http\Requests\Task\IndexTaskRequest;
 use App\Http\Requests\Task\StoreTaskRequest;
 use App\Http\Requests\Task\UpdateTaskRequest;
 use App\Services\TaskService;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class TaskController extends Controller
 {
+    use AuthorizesRequests;
+    
     public function __construct(
         private TaskService $service
     ) {
@@ -111,6 +114,8 @@ class TaskController extends Controller
     public function update(UpdateTaskRequest $request, int $id)
     {
         $task = $this->service->update($id, $request->validated());
+
+        $this->authorize('update', $task);
 
         if (!$task) {
             return $this->error(

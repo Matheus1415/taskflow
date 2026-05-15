@@ -23,7 +23,7 @@ class DatabaseSeeder extends Seeder
                 'title' => 'Configurar Sanctum no Backend',
                 'description' => 'Implementar autenticação SPA e proteger rotas de tarefas no api.php.',
                 'priority' => 'high',
-                'status' => 'completed',
+                'status' => 'done',
                 'due_date' => now()
             ],
             [
@@ -60,7 +60,7 @@ class DatabaseSeeder extends Seeder
                 'title' => 'Customizar Temas do Shadcn/UI',
                 'description' => 'Alterar as variáveis de cor no globals.css para seguir a paleta do TaskFlow.',
                 'priority' => 'medium',
-                'status' => 'completed',
+                'status' => 'done',
                 'due_date' => now()->subDays(2)
             ],
             [
@@ -97,7 +97,7 @@ class DatabaseSeeder extends Seeder
                 'title' => 'Gerar Documentação Swagger',
                 'description' => 'Utilizar o Scramble para expor a documentação interativa da API.',
                 'priority' => 'low',
-                'status' => 'completed',
+                'status' => 'done',
                 'due_date' => now()->subWeek()
             ],
             [
@@ -118,7 +118,7 @@ class DatabaseSeeder extends Seeder
                 'title' => 'Implementar Dark Mode Toggle',
                 'description' => 'Adicionar alternador de tema usando next-themes ou estado local do React.',
                 'priority' => 'low',
-                'status' => 'completed',
+                'status' => 'done',
                 'due_date' => now()->subDays(10)
             ],
             [
