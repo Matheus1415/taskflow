@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Moon, SunMedium, CheckCircle2, LogOut, CheckSquare } from "lucide-react";
+import { Moon, SunMedium, LogOut, CheckSquare, Github, Linkedin, Mail } from "lucide-react";
 import { Outlet } from "react-router";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useAuthContext } from "@/contexts/AuthContext/hook";
@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 
 export default function LayoutDefault() {
   const [theme, setTheme] = useState<"light" | "dark">("light");
+  const currentYear = new Date().getFullYear();
 
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme") as "light" | "dark" | null;
@@ -83,7 +84,56 @@ export default function LayoutDefault() {
         <main className="container mx-auto flex w-full flex-col py-6 px-4 md:px-6 lg:py-8">
           <Outlet />
         </main>
+        <footer className="w-full border-t border-border/40 bg-background/95 py-8 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+          <div className="container mx-auto px-4">
+            <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
+
+              <div className="flex items-center gap-2">
+                <CheckSquare className="h-6 w-6 text-primary" />
+                <span className="text-lg font-bold tracking-tight text-foreground">
+                  Task<span className="text-primary">Flow</span>
+                </span>
+              </div>
+
+              <p className="text-center text-sm text-muted-foreground md:text-left">
+                © {currentYear} TaskFlow. Organizando sua produtividade com eficiência.
+              </p>
+
+              <div className="flex items-center gap-4">
+                <a
+                  href="https://github.com/Matheus1415/taskflow"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="rounded-full p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-primary"
+                  title="Repositório no GitHub"
+                >
+                  <Github className="h-5 w-5" />
+                  <span className="sr-only">GitHub</span>
+                </a>
+
+                <a
+                  href="https://www.linkedin.com/in/matheus-pereira-da-silva-298020286/"
+                  className="rounded-full p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-primary"
+                  title="LinkedIn"
+                >
+                  <Linkedin className="h-5 w-5" />
+                </a>
+              </div>
+            </div>
+
+            <div className="mt-8 border-t border-border/20 pt-4 text-center">
+              <a
+                href="https://github.com/Matheus1415/taskflow"
+                target="_blank"
+                className="text-xs text-muted-foreground transition-all hover:text-primary hover:underline"
+              >
+                Contribua com o projeto no GitHub
+              </a>
+            </div>
+          </div>
+        </footer>
       </ScrollArea>
+
     </div>
   );
 }
