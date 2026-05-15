@@ -88,6 +88,15 @@ Acesse em:
 http://127.0.0.1:8000/docs/api
 ```
 
+## Como rodar os testes:
+Certifique-se de que o seu ambiente está configurado e execute:
+```
+php artisan test --filter CreateTaskTest
+php artisan test --filter UpdateTaskTest
+php artisan test --filter DeleteTaskTest
+```
+
+
 ---
 
 ## 🧠 Estrutura de Pastas e Arquitetura
