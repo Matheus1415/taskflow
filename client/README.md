@@ -44,7 +44,7 @@ Certifique-se de ter instalado em sua máquina:
 
 2.  **Acesse a pasta do front-end:**
     ```bash
-    cd taskflow/frontend
+    cd taskflow/client
     ```
 
 3.  **Instale as dependências:**
