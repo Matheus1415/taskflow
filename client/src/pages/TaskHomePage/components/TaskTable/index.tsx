@@ -1,5 +1,6 @@
 "use client";
-import React, { useMemo, useState } from "react";
+
+import React, { useEffect, useMemo, useState } from "react";
 import {
     MoreHorizontal,
     Flag,
@@ -11,12 +12,12 @@ import {
     AlertCircle,
     CalendarDays,
     Pencil,
-    FolderInput,
     Trash2,
     CircleDashed,
     Loader2,
+    RotateCcw,
 } from "lucide-react";
-import { differenceInCalendarDays, format, isPast, isToday, parseISO, startOfDay } from "date-fns";
+import { format, isPast, isToday, parseISO, startOfDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
 import {
@@ -43,31 +44,37 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import type { Task, TaskPriority, TaskStatus } from "@/types/task";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
+type TaskViewStatus = TaskStatus | "deleted";
+
 interface TaskTableProps {
     tasks: Task[];
     totalCount: number;
     isLoading: boolean;
     isFetchingMore: boolean;
+    activeStatus: TaskViewStatus;
     onReachEnd: () => void;
     handleSelectTask: (task: Task) => void;
     handleDeleteTask: (task: Task) => void;
-    handleDeleteBulk: (ids: number[]) => void;
+    handleDeleteBulk: (ids: number[]) => void | Promise<void>;
+    handleStatusBulkUpdate: (ids: number[], status: TaskStatus) => void | Promise<void>;
+    handleRestoreTask: (task: Task) => void | Promise<void>;
+    handleRestoreBulk: (ids: number[]) => void | Promise<void>;
 }
 
 const statusMeta: Record<TaskStatus, { label: string; icon: React.ReactNode; className: string }> = {
     pending: {
-        label: "Não iniciada",
+        label: "Nao iniciada",
         icon: <Circle className="h-5 w-5 text-muted-foreground/50 transition-colors" />,
         className: "bg-amber-500/10 text-amber-500",
     },
     in_progress: {
         label: "Em progresso",
-        icon: <CircleDashed className="h-5 w-5 text-blue-500 animate-[spin_3s_linear_infinite] transition-colors" />,
+        icon: <CircleDashed className="h-5 w-5 animate-[spin_3s_linear_infinite] text-blue-500 transition-colors" />,
         className: "bg-blue-500/10 text-blue-500",
     },
     done: {
-        label: "Concluída",
-        icon: <CheckCircle2 className="h-5 w-5 text-green-500 fill-green-500/10 transition-colors" />,
+        label: "Concluida",
+        icon: <CheckCircle2 className="h-5 w-5 fill-green-500/10 text-green-500 transition-colors" />,
         className: "bg-green-500/10 text-green-500",
     },
 };
@@ -75,15 +82,15 @@ const statusMeta: Record<TaskStatus, { label: string; icon: React.ReactNode; cla
 const priorityMeta: Record<TaskPriority, { label: string; className: string }> = {
     low: {
         label: "Baixa",
-        className: "text-green-500 fill-green-500",
+        className: "fill-green-500 text-green-500",
     },
     medium: {
-        label: "Média",
-        className: "text-amber-500 fill-amber-500",
+        label: "Media",
+        className: "fill-amber-500 text-amber-500",
     },
     high: {
         label: "Alta",
-        className: "text-red-500 fill-red-500",
+        className: "fill-red-500 text-red-500",
     },
 };
 
@@ -92,31 +99,59 @@ export function TaskTable({
     totalCount,
     isLoading,
     isFetchingMore,
+    activeStatus,
     onReachEnd,
     handleSelectTask,
     handleDeleteTask,
     handleDeleteBulk,
+    handleStatusBulkUpdate,
+    handleRestoreTask,
+    handleRestoreBulk,
 }: TaskTableProps) {
     const [selectedTasks, setSelectedTasks] = useState<number[]>([]);
+
+    useEffect(() => {
+        setSelectedTasks((previous) => previous.filter((id) => tasks.some((task) => task.id === id)));
+    }, [tasks]);
 
     const allSelected = useMemo(
         () => tasks.length > 0 && selectedTasks.length === tasks.length,
         [selectedTasks.length, tasks.length],
     );
 
+    const isTrashView = activeStatus === "deleted";
+    const isUpdatedView = activeStatus === "pending";
+    const isDoneView = activeStatus === "in_progress";
+
     const toggleSelectAll = () => {
         setSelectedTasks(allSelected ? [] : tasks.map((task) => task.id));
     };
 
     const toggleSelectTask = (id: number) => {
-        setSelectedTasks((prev) =>
-            prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id],
-        );
+        setSelectedTasks((previous) => (
+            previous.includes(id)
+                ? previous.filter((item) => item !== id)
+                : [...previous, id]
+        ));
     };
 
-    const onBulkDeleteClick = () => {
-        handleDeleteBulk(selectedTasks);
+    const clearSelection = () => {
         setSelectedTasks([]);
+    };
+
+    const onBulkDeleteClick = async () => {
+        await handleDeleteBulk(selectedTasks);
+        clearSelection();
+    };
+
+    const onBulkStatusUpdate = async (status: TaskStatus) => {
+        await handleStatusBulkUpdate(selectedTasks, status);
+        clearSelection();
+    };
+
+    const onBulkRestore = async () => {
+        await handleRestoreBulk(selectedTasks);
+        clearSelection();
     };
 
     const handleScroll = (event: React.UIEvent<HTMLDivElement>) => {
@@ -130,25 +165,25 @@ export function TaskTable({
 
     const getRemainingClassName = (task: Task) => {
         if (task.completed_at) {
-            return "text-green-500 bg-green-500/10";
+            return "bg-green-500/10 text-green-500";
         }
 
         if (!task.due_date) {
-            return "text-muted-foreground bg-muted/30";
+            return "bg-muted/30 text-muted-foreground";
         }
 
         const dueDate = parseISO(task.due_date);
 
         if (isToday(dueDate) || isPast(startOfDay(dueDate))) {
-            return "text-red-500 bg-red-500/10";
+            return "bg-red-500/10 text-red-500";
         }
 
-        return "text-muted-foreground bg-muted";
+        return "bg-muted text-muted-foreground";
     };
 
     const getRemainingLabel = (task: Task) => {
         if (task.completed_at) {
-            return "Concluída";
+            return "Concluida";
         }
 
         if (!task.due_date) {
@@ -180,20 +215,67 @@ export function TaskTable({
     }
 
     return (
-        <div className="w-full rounded-xl bg-card shadow-sm">
+        <div className={cn(
+            "w-full rounded-xl shadow-sm",
+            isTrashView ? "border border-rose-500/20 bg-rose-500/5" : "bg-card",
+        )}
+        >
             <ScrollArea className="h-[400px] w-full rounded-xl border-none" onScroll={handleScroll}>
-                <div className="flex h-14 items-center justify-between border-b border-border/40 px-4 py-2">
+                <div className={cn(
+                    "flex min-h-14 items-center justify-between gap-3 border-b px-4 py-2",
+                    isTrashView ? "border-rose-500/20 bg-rose-500/5" : "border-border/40",
+                )}
+                >
                     {selectedTasks.length > 0 ? (
-                        <Button
-                            variant="ghost"
-                            onClick={onBulkDeleteClick}
-                            className="gap-2 cursor-pointer rounded-xl text-red-400 hover:text-red-500 hover:bg-red-500/10 transition-all animate-in fade-in slide-in-from-left-4"
-                        >
-                            <Trash2 className="h-4 w-4" />
-                            Excluir selecionados ({selectedTasks.length})
-                        </Button>
+                        <div className="flex flex-wrap items-center gap-2">
+                            <Button
+                                variant="ghost"
+                                onClick={onBulkDeleteClick}
+                                className="cursor-pointer gap-2 rounded-xl text-red-400 transition-all hover:bg-red-500/10 hover:text-red-500"
+                            >
+                                <Trash2 className="h-4 w-4" />
+                                {isTrashView ? `Excluir em definitivo (${selectedTasks.length})` : `Mover para lixeira (${selectedTasks.length})`}
+                            </Button>
+
+                            <Button
+                                variant="ghost"
+                                onClick={onBulkRestore}
+                                className={cn(
+                                    "cursor-pointer gap-2 rounded-xl transition-all",
+                                    isTrashView ? "text-emerald-400 hover:bg-emerald-500/10 hover:text-emerald-500" : "hidden",
+                                )}
+                            >
+                                <RotateCcw className="h-4 w-4" />
+                                Remover da lixeira
+                            </Button>
+
+                            <Button
+                                variant="ghost"
+                                onClick={() => onBulkStatusUpdate("in_progress")}
+                                className={cn(
+                                    "cursor-pointer gap-2 rounded-xl text-blue-400 transition-all hover:bg-blue-500/10 hover:text-blue-500",
+                                    isUpdatedView ? "" : "hidden",
+                                )}
+                            >
+                                <CircleDashed className="h-4 w-4" />
+                                Marcar em progresso
+                            </Button>
+
+                            <Button
+                                variant="ghost"
+                                onClick={() => onBulkStatusUpdate("done")}
+                                className={cn(
+                                    "cursor-pointer gap-2 rounded-xl text-green-400 transition-all hover:bg-green-500/10 hover:text-green-500",
+                                    isDoneView ? "" : "hidden",
+                                )}
+                            >
+                                <CheckCircle2 className="h-4 w-4" />
+                                Marcar concluidas
+                            </Button>
+                        </div>
                     ) : (
-                        <span className="ml-2 text-sm text-muted-foreground">
+                        <span className="ml-2 text-sm"
+                        >
                             {tasks.length} de {totalCount} tarefas carregadas
                         </span>
                     )}
@@ -207,7 +289,11 @@ export function TaskTable({
                 </div>
 
                 <Table className="border-collapse">
-                    <TableHeader className="sticky top-0 z-10 bg-muted/60 backdrop-blur-md">
+                    <TableHeader className={cn(
+                        "sticky top-0 z-10 backdrop-blur-md",
+                        isTrashView ? "bg-rose-500/10" : "bg-muted/60",
+                    )}
+                    >
                         <TableRow className="border-b border-border/50 hover:bg-transparent">
                             <TableHead className="w-[50px] pl-6">
                                 <TooltipProvider>
@@ -217,12 +303,12 @@ export function TaskTable({
                                                 <Checkbox
                                                     checked={allSelected}
                                                     onCheckedChange={toggleSelectAll}
-                                                    className="translate-y-[2px] cursor-pointer border-muted-foreground/30 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                                                    className="translate-y-[2px] cursor-pointer"
                                                 />
                                             </div>
                                         </TooltipTrigger>
                                         <TooltipContent side="top" align="center" className="bg-foreground text-xs font-medium text-background">
-                                            Selecionar tarefas visíveis
+                                            Selecionar tarefas visiveis
                                         </TooltipContent>
                                     </Tooltip>
                                 </TooltipProvider>
@@ -231,7 +317,7 @@ export function TaskTable({
                             <TableHead className="py-4 font-bold text-foreground">
                                 <div className="flex items-center gap-2">
                                     <LayoutList className="h-4 w-4 text-primary" />
-                                    Título
+                                    Titulo
                                 </div>
                             </TableHead>
 
@@ -272,15 +358,25 @@ export function TaskTable({
                             <TableRow className="hover:bg-transparent">
                                 <TableCell colSpan={7} className="h-[320px] text-center">
                                     <div className="flex animate-in zoom-in flex-col items-center justify-center gap-3 fade-in duration-300">
-                                        <div className="flex h-20 w-20 items-center justify-center rounded-full bg-muted/30">
-                                            <LayoutList className="h-10 w-10 text-muted-foreground/40" />
+                                        <div className={cn(
+                                            "flex h-20 w-20 items-center justify-center rounded-full",
+                                            isTrashView ? "bg-rose-500/10" : "bg-muted/30",
+                                        )}
+                                        >
+                                            <LayoutList className={cn(
+                                                "h-10 w-10",
+                                                isTrashView ? "text-rose-300/60" : "text-muted-foreground/40",
+                                            )}
+                                            />
                                         </div>
                                         <div className="space-y-1">
                                             <p className="text-lg font-medium text-foreground">
                                                 Nenhuma tarefa encontrada
                                             </p>
                                             <p className="text-sm text-muted-foreground">
-                                                Ajuste os filtros ou crie uma nova tarefa para começar.
+                                                {isTrashView
+                                                    ? "Nenhum item esta na lixeira no momento."
+                                                    : "Ajuste os filtros ou crie uma nova tarefa para comecar."}
                                             </p>
                                         </div>
                                     </div>
@@ -296,7 +392,8 @@ export function TaskTable({
                                     <TableRow
                                         key={task.id}
                                         className={cn(
-                                            "group border-b border-border/40 transition-all hover:bg-muted/30",
+                                            "group border-b transition-all hover:bg-muted/30",
+                                            isTrashView ? "border-rose-500/10 hover:bg-rose-500/5" : "border-border/40",
                                             selectedTasks.includes(task.id) && "bg-primary/5 hover:bg-primary/10",
                                         )}
                                     >
@@ -358,13 +455,11 @@ export function TaskTable({
 
                                         <TableCell className="hidden lg:table-cell">
                                             <span className="text-sm text-muted-foreground">
-                                                {/* 3. Renderização condicional da data formatada */}
                                                 {dueDate ? format(dueDate, "dd 'de' MMM yyyy", { locale: ptBR }) : "Sem prazo"}
                                             </span>
                                         </TableCell>
 
                                         <TableCell className="hidden pr-6 text-right xl:table-cell">
-                                            {/* 4. Verificação adicional dentro das funções auxiliares */}
                                             <span className={cn("rounded-md px-2 py-1 text-xs font-bold", getRemainingClassName(task))}>
                                                 {getRemainingLabel(task)}
                                             </span>
@@ -383,22 +478,29 @@ export function TaskTable({
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent align="end" className="w-52 rounded-xl border-border/50 p-2 shadow-xl">
                                                     <DropdownMenuLabel className="px-2 py-1.5 text-xs font-bold uppercase text-muted-foreground">
-                                                        Opções
+                                                        Opcoes
                                                     </DropdownMenuLabel>
                                                     <DropdownMenuSeparator className="opacity-50" />
 
-                                                    <DropdownMenuItem
-                                                        className="cursor-pointer gap-2 rounded-md py-2"
-                                                        onSelect={() => handleSelectTask(task)}
-                                                    >
-                                                        <Pencil className="h-4 w-4 text-muted-foreground" />
-                                                        <span>Editar</span>
-                                                    </DropdownMenuItem>
+                                                    {!isTrashView ? (
+                                                        <DropdownMenuItem
+                                                            className="cursor-pointer gap-2 rounded-md py-2"
+                                                            onSelect={() => handleSelectTask(task)}
+                                                        >
+                                                            <Pencil className="h-4 w-4 text-muted-foreground" />
+                                                            <span>Editar</span>
+                                                        </DropdownMenuItem>
+                                                    ) : null}
 
-                                                    <DropdownMenuItem className="cursor-pointer gap-2 rounded-md py-2">
-                                                        <FolderInput className="h-4 w-4 text-muted-foreground" />
-                                                        <span>Mover para...</span>
-                                                    </DropdownMenuItem>
+                                                    {isTrashView ? (
+                                                        <DropdownMenuItem
+                                                            className="cursor-pointer gap-2 rounded-md py-2 text-emerald-500 focus:bg-emerald-500/10 focus:text-emerald-500"
+                                                            onSelect={() => handleRestoreTask(task)}
+                                                        >
+                                                            <RotateCcw className="h-4 w-4" />
+                                                            <span>Remover da lixeira</span>
+                                                        </DropdownMenuItem>
+                                                    ) : null}
 
                                                     <DropdownMenuSeparator className="opacity-50" />
 
@@ -407,7 +509,7 @@ export function TaskTable({
                                                         onSelect={() => handleDeleteTask(task)}
                                                     >
                                                         <Trash2 className="h-4 w-4" />
-                                                        <span>Excluir</span>
+                                                        <span>{isTrashView ? "Excluir em definitivo" : "Excluir"}</span>
                                                     </DropdownMenuItem>
                                                 </DropdownMenuContent>
                                             </DropdownMenu>

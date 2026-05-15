@@ -6,6 +6,7 @@ import {
     Circle,
     CircleDashed,
     ListTodo,
+    Trash2,
 } from "lucide-react";
 import Swal from "sweetalert2";
 import { useBoolean } from "usehooks-ts";
@@ -20,6 +21,7 @@ import { useTasks } from "@/http/request/task/useTasks";
 import { useTaskCrud } from "@/http/request/task/useTaskCrud";
 
 const PER_PAGE = 50;
+type TaskViewStatus = TaskStatus | "deleted";
 
 const priorityWeight: Record<TaskPriority, number> = {
     high: 3,
@@ -54,7 +56,7 @@ function sortTasks(tasks: Task[], sortBy: TaskSortOption) {
 }
 
 export default function TaskHomePage() {
-    const [activeStatus, setActiveStatus] = useState<TaskStatus>("in_progress");
+    const [activeStatus, setActiveStatus] = useState<TaskViewStatus>("in_progress");
     const [search, setSearch] = useState("");
     const [priority, setPriority] = useState<TaskPriority | "all">("all");
     const [sortBy, setSortBy] = useState<TaskSortOption>("newest");
@@ -74,7 +76,7 @@ export default function TaskHomePage() {
         per_page: PER_PAGE,
     });
 
-    const { taskDelete } = useTaskCrud();
+    const { taskDelete, taskEdit, taskRestore } = useTaskCrud();
 
     useEffect(() => {
         setPage((previous) => (previous === 1 ? previous : 1));
@@ -88,8 +90,7 @@ export default function TaskHomePage() {
             }
 
             const previousIds = new Set(previous.map((task) => task.id));
-            const uniqueNewTasks = tasks
-            .filter((task) => !previousIds.has(task.id));
+            const uniqueNewTasks = tasks.filter((task) => !previousIds.has(task.id));
             if (uniqueNewTasks.length === 0) {
                 return previous;
             }
@@ -99,7 +100,12 @@ export default function TaskHomePage() {
     }, [page, tasks]);
 
     const visibleTasks = useMemo(() => {
-        const filteredByStatus = loadedTasks.filter((task) => task.status === activeStatus);
+        const filteredByStatus = activeStatus === "deleted"
+            ? loadedTasks.filter((task) => task.deleted_at !== null)
+            : loadedTasks
+                .filter((task) => task.deleted_at === null)
+                .filter((task) => task.status === activeStatus);
+
         const filteredByPriority = priority === "all"
             ? filteredByStatus
             : filteredByStatus.filter((task) => task.priority === priority);
@@ -114,35 +120,120 @@ export default function TaskHomePage() {
 
     const handleDeleteTask = (task: Task) => {
         Swal.fire({
-            title: "Remover tarefa?",
-            text: `Tem certeza que deseja excluir a tarefa ${task.title}?`,
+            title: task.deleted_at ? "Excluir em definitivo?" : "Mover tarefa para a lixeira?",
+            text: task.deleted_at
+                ? `A tarefa ${task.title} sera removida permanentemente.`
+                : `Tem certeza que deseja enviar a tarefa ${task.title} para a lixeira?`,
             icon: "warning",
             showCancelButton: true,
             confirmButtonColor: "#06b6d4",
             cancelButtonColor: "#171717",
-            confirmButtonText: "Sim, remover",
+            confirmButtonText: task.deleted_at ? "Sim, excluir" : "Sim, mover",
             background: "#0a0a0a",
             color: "#fff",
             customClass: {
                 popup: "border border-white/10 rounded-3xl",
             },
         }).then(async (result) => {
-            if (result.isConfirmed) {
-                await taskDelete(task.id);
-                setLoadedTasks((previous) => previous.filter((t) => t.id !== task.id));
-                Swal.fire({
-                    title: "Excluída!",
-                    text: "A tarefa foi excluída.",
-                    icon: "success",
-                    background: "#0a0a0a",
-                    color: "#fff",
-                });
+            if (!result.isConfirmed) {
+                return;
             }
+
+            await taskDelete(task.id);
+
+            setLoadedTasks((previous) => {
+                if (task.deleted_at) {
+                    return previous.filter((currentTask) => currentTask.id !== task.id);
+                }
+
+                return previous.map((currentTask) => (
+                    currentTask.id === task.id
+                        ? { ...currentTask, deleted_at: new Date().toISOString() }
+                        : currentTask
+                ));
+            });
+
+            Swal.fire({
+                title: task.deleted_at ? "Excluida!" : "Movida para a lixeira!",
+                text: task.deleted_at
+                    ? "A tarefa foi removida permanentemente."
+                    : "A tarefa foi enviada para a lixeira.",
+                icon: "success",
+                background: "#0a0a0a",
+                color: "#fff",
+            });
         });
     };
 
-    const handleDeleteBulk = (ids: number[]) => {
-        console.log("IDs para exclusão em massa:", ids);
+    const handleDeleteBulk = async (ids: number[]) => {
+        const selectedTasks = loadedTasks.filter((task) => ids.includes(task.id));
+        const hasTrashedTasks = selectedTasks.some((task) => task.deleted_at !== null);
+
+        const result = await Swal.fire({
+            title: hasTrashedTasks ? "Excluir tarefas em definitivo?" : "Mover tarefas para a lixeira?",
+            text: hasTrashedTasks
+                ? `${ids.length} tarefa(s) serao removidas permanentemente.`
+                : `${ids.length} tarefa(s) serao enviadas para a lixeira.`,
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#06b6d4",
+            cancelButtonColor: "#171717",
+            confirmButtonText: hasTrashedTasks ? "Sim, excluir" : "Sim, mover",
+            background: "#0a0a0a",
+            color: "#fff",
+        });
+
+        if (!result.isConfirmed) {
+            return;
+        }
+
+        await Promise.all(ids.map((id) => taskDelete(id)));
+
+        setLoadedTasks((previous) => {
+            if (hasTrashedTasks) {
+                return previous.filter((task) => !ids.includes(task.id));
+            }
+
+            return previous.map((task) => (
+                ids.includes(task.id)
+                    ? { ...task, deleted_at: new Date().toISOString() }
+                    : task
+            ));
+        });
+    };
+
+    const handleStatusBulkUpdate = async (ids: number[], status: TaskStatus) => {
+        await Promise.all(ids.map((id) => taskEdit(id, { status })));
+
+        setLoadedTasks((previous) => previous.map((task) => {
+            if (!ids.includes(task.id)) {
+                return task;
+            }
+
+            return {
+                ...task,
+                status,
+                completed_at: status === "done" ? new Date().toISOString() : null,
+            };
+        }));
+    };
+
+    const handleRestoreTask = async (task: Task) => {
+        await taskRestore(task.id);
+        setLoadedTasks((previous) => previous.map((currentTask) => (
+            currentTask.id === task.id
+                ? { ...currentTask, deleted_at: null }
+                : currentTask
+        )));
+    };
+
+    const handleRestoreBulk = async (ids: number[]) => {
+        await Promise.all(ids.map((id) => taskRestore(id)));
+        setLoadedTasks((previous) => previous.map((task) => (
+            ids.includes(task.id)
+                ? { ...task, deleted_at: null }
+                : task
+        )));
     };
 
     const handleReachEnd = () => {
@@ -186,7 +277,7 @@ export default function TaskHomePage() {
 
             <Tabs
                 value={activeStatus}
-                onValueChange={(value) => setActiveStatus(value as TaskStatus)}
+                onValueChange={(value) => setActiveStatus(value as TaskViewStatus)}
                 className="w-full space-y-6"
             >
                 <div className="flex items-center justify-between border-b border-border/40 pb-1">
@@ -196,7 +287,7 @@ export default function TaskHomePage() {
                             className="flex cursor-pointer items-center gap-2 rounded-lg px-4 py-2 transition-all data-[state=active]:bg-background data-[state=active]:shadow-sm"
                         >
                             <Circle className="h-4 w-4 text-muted-foreground/60" />
-                            <span className="text-sm font-medium">Não iniciadas</span>
+                            <span className="text-sm font-medium">Nao iniciadas</span>
                         </TabsTrigger>
 
                         <TabsTrigger
@@ -212,7 +303,15 @@ export default function TaskHomePage() {
                             className="flex cursor-pointer items-center gap-2 rounded-lg px-4 py-2 transition-all data-[state=active]:bg-background data-[state=active]:text-green-500 data-[state=active]:shadow-sm"
                         >
                             <CheckCircle2 className="h-4 w-4" />
-                            <span className="text-sm font-medium">Concluídas</span>
+                            <span className="text-sm font-medium">Concluidas</span>
+                        </TabsTrigger>
+
+                        <TabsTrigger
+                            value="deleted"
+                            className="flex cursor-pointer items-center gap-2 rounded-lg px-4 py-2 text-rose-500/80 transition-all data-[state=active]:bg-rose-500/10 data-[state=active]:text-rose-500 data-[state=active]:shadow-sm"
+                        >
+                            <Trash2 className="h-4 w-4" />
+                            <span className="text-sm font-medium">Lixeira</span>
                         </TabsTrigger>
                     </TabsList>
 
@@ -233,6 +332,10 @@ export default function TaskHomePage() {
                 handleSelectTask={handleSelectTask}
                 handleDeleteTask={handleDeleteTask}
                 handleDeleteBulk={handleDeleteBulk}
+                handleStatusBulkUpdate={handleStatusBulkUpdate}
+                handleRestoreTask={handleRestoreTask}
+                handleRestoreBulk={handleRestoreBulk}
+                activeStatus={activeStatus}
             />
 
             <TaskCreateModal open={isOpenDetails} onOpenChange={setOpenCreateModal} />

@@ -58,5 +58,21 @@ export function useTaskCrud() {
     }
   }
 
-  return { taskCreate, taskEdit, taskDelete };
+  async function taskRestore(id: number | string): Promise<ApiSuccess<Task>> {
+    const URL_RESTORE = `${URL_BASE}/${id}/restore`;
+
+    try {
+      const response = await Api.patch<ApiSuccess<Task>>(URL_RESTORE);
+
+      mutate((key) => typeof key === 'string' && key.startsWith(URL_BASE));
+
+      return response.data;
+    } catch (error) {
+      const apiError =
+        (error as AxiosError<ApiError>).response?.data ?? DEFAULT_API_ERROR;
+      throw apiError;
+    }
+  }
+
+  return { taskCreate, taskEdit, taskDelete, taskRestore };
 }
