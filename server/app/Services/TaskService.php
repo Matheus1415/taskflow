@@ -98,7 +98,7 @@ class TaskService
 
     public function update(int $id, array $data): ?Task
     {
-        $task = Task::query()
+        $task = Task::withTrashed()
             ->where('user_id', Auth::id())
             ->find($id);
 
@@ -144,5 +144,20 @@ class TaskService
         $task->delete();
 
         return true;
+    }
+
+    public function restore(int $id): ?Task
+    {
+        $task = Task::onlyTrashed()
+            ->where('user_id', Auth::id())
+            ->find($id);
+
+        if (!$task) {
+            return null;
+        }
+
+        $task->restore();
+
+        return $task->fresh();
     }
 }

@@ -13,5 +13,6 @@ Route::middleware([
     'auth:sanctum',
 ])->group(function () {
     Route::get('/me', [MeController::class, 'me'])->name('me');
+    Route::patch('/tasks/{id}/restore', [TaskController::class, 'restore'])->name('tasks.restore');
     Route::apiResource('tasks', TaskController::class);
 });

@@ -155,4 +155,34 @@ class TaskController extends Controller
             'Tarefa removida com sucesso'
         );
     }
+
+    /**
+     * Restaurar tarefa (Lixeira)
+     *
+     * Este endpoint recupera uma tarefa que foi previamente enviada para a lixeira (soft delete).
+     *
+     * ## Comportamento:
+     *
+     * - O campo `deleted_at` da tarefa é limpo (definido como null).
+     * - A tarefa volta a aparecer nas listagens comuns de tarefas ativas.
+     * - Todos os dados originais da tarefa (título, prazos, prioridade) são preservados.
+     *
+     * @see RestoreTaskDoc
+     */
+    public function restore(int $id)
+    {
+        $task = $this->service->restore($id);
+
+        if (!$task) {
+            return $this->error(
+                'Tarefa não encontrada',
+                404
+            );
+        }
+
+        return $this->success(
+            'Tarefa restaurada com sucesso',
+            $task
+        );
+    }
 }
