@@ -274,7 +274,7 @@ export function TaskTable({
                                 )}
                             >
                                 <CheckCircle2 className="h-4 w-4" />
-                                Marcar concluidas
+                                Marcar concluídas
                             </Button>
                         </div>
                     ) : (

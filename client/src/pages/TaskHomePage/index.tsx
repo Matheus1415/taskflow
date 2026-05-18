@@ -352,7 +352,7 @@ export default function TaskHomePage() {
                             className="flex cursor-pointer items-center gap-2 rounded-lg px-4 py-2 transition-all data-[state=active]:bg-background data-[state=active]:text-green-500 data-[state=active]:shadow-sm"
                         >
                             <CheckCircle2 className="h-4 w-4" />
-                            <span className="text-sm font-medium">Concluidas</span>
+                            <span className="text-sm font-medium">Concluídas</span>
                         </TabsTrigger>
 
                         <TabsTrigger
