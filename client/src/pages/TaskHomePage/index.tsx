@@ -336,7 +336,7 @@ export default function TaskHomePage() {
                             className="flex cursor-pointer items-center gap-2 rounded-lg px-4 py-2 transition-all data-[state=active]:bg-background data-[state=active]:shadow-sm"
                         >
                             <Circle className="h-4 w-4 text-muted-foreground/60" />
-                            <span className="text-sm font-medium">Nao iniciadas</span>
+                            <span className="text-sm font-medium">Não iniciadas</span>
                         </TabsTrigger>
 
                         <TabsTrigger

@@ -63,7 +63,7 @@ interface TaskTableProps {
 
 const statusMeta: Record<TaskStatus, { label: string; icon: React.ReactNode; className: string }> = {
     pending: {
-        label: "Nao iniciada",
+        label: "Não iniciada",
         icon: <Circle className="h-5 w-5 text-muted-foreground/50 transition-colors" />,
         className: "bg-amber-500/10 text-amber-500",
     },

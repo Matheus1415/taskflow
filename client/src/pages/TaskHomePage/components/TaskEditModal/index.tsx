@@ -54,7 +54,7 @@ export function TaskEditModal({ open, onOpenChange, task }: TaskEditModalProps) 
                 return;
             }
 
-            toast.error("Erro de Conexão", "Nao foi possivel contatar o servidor.");
+            toast.error("Erro de Conexão", "Não foi possivel contatar o servidor.");
         }
     };
 

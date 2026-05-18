@@ -51,7 +51,7 @@ export function TaskCreateModal({ open, onOpenChange }: TaskCreateModalProps) {
                 return;
             }
 
-            toast.error("Erro de Conexão", "Nao foi possivel contatar o servidor.");
+            toast.error("Erro de Conexão", "Não foi possivel contatar o servidor.");
         }
     };
 
