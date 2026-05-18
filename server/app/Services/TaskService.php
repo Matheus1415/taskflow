@@ -85,7 +85,8 @@ class TaskService
     {
         return Task::query()
             ->where('user_id', Auth::id())
-            ->findOrFail($id);
+            ->withTrashed()
+            ->find($id);
     }
 
     public function create(array $data): Task
